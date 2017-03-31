@@ -66,9 +66,7 @@ function decode (str) {
 
   // don't allow mixed case
   let lowered = str.toLowerCase()
-  if (str !== lowered) {
-    if (str !== str.toUpperCase()) return
-  }
+  if (str !== lowered) return
 
   let pos = str.lastIndexOf('1')
   if ((pos < 1) || (pos + 7 > str.length)) return
