@@ -20,7 +20,8 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "standard": "*"
+    "standard": "*",
+    "tape": "^4.6.3"
   },
   "repository": {
     "url": "http://github.com/bitcoinjs/bech32",
