@@ -1,6 +1,6 @@
 {
   "name": "bech32",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Bech32 encoding / decoding",
   "keywords": [
     "base32",
