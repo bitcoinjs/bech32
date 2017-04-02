@@ -40,9 +40,8 @@ function convertbits (data, inbits, outbits, pad) {
     if (bits > 0) {
       ret.push((val << (outbits - bits)) & maxv)
     }
-  } else {
-//     assert(!((val << (outbits - bits)) & maxv))
-//     assert(bits < inbits)
+  } else if (bits >= inbits || ((val << (outbits - bits)) & maxv)) {
+    assert(false)
   }
 
   return ret
