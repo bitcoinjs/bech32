@@ -1,3 +1,4 @@
+let assert = require('assert')
 let ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 
 // pre-compute lookup table
@@ -19,15 +20,45 @@ function polymodStep (pre) {
     (-((b >> 4) & 1) & 0x2a1462b3)
 }
 
+function convertbits (data, inbits, outbits, pad) {
+  let val = 0
+  let bits = 0
+  let maxv = (1 << outbits) - 1
+  let ret = []
+
+  for (let i = 0; i < data.length; ++i) {
+    val = (val << inbits) | data[i]
+    bits += inbits
+
+    while (bits >= outbits) {
+      bits -= outbits
+      ret.push((val >> bits) & maxv)
+    }
+  }
+
+  if (pad) {
+    if (bits > 0) {
+      ret.push((val << (outbits - bits)) & maxv)
+    }
+  } else {
+    assert(!((val << (outbits - bits)) & maxv))
+    assert(bits < inbits)
+  }
+
+  return ret
+}
+
 function encode (prefix, data) {
+  data = Buffer.from(convertbits(data, 8, 5, true))
+
   // too long?
-  if ((prefix.length + 7 + data.length) > 90) return null
+  assert((prefix.length + 7 + data.length) <= 90)
 
   // determine chk mod
   let chk = 0 | 0
   for (let i = 0; i < prefix.length; ++i) {
     let c = prefix.charCodeAt(i)
-    if (!(c >> 5)) return null
+    assert.notEqual(c >> 5, 0)
 
     chk = polymodStep(chk) ^ (c >> 5)
   }
@@ -43,7 +74,8 @@ function encode (prefix, data) {
 
   for (let i = 0; i < data.length; ++i) {
     let x = data[i]
-    if (x >> 5) return null
+    assert.equal(x >> 5, 0)
+
     chk = polymodStep(chk) ^ x
     result += ALPHABET.charAt(x)
   }
@@ -62,48 +94,53 @@ function encode (prefix, data) {
 }
 
 function decode (str) {
-  if (str.length > 90) return
+  assert(str.length >= 8)
+  assert(str.length <= 90)
 
   // don't allow mixed case
   let lowered = str.toLowerCase()
-  if (str !== lowered) return
+  assert.equal(str, lowered)
 
-  let pos = str.lastIndexOf('1')
-  if ((pos < 1) || (pos + 7 > str.length)) return
+  let split = str.lastIndexOf('1')
+  let prefix = str.slice(0, split)
+  let data = str.slice(split + 1)
+  assert(prefix.length >= 1)
+  assert(data.length >= 6)
 
-  let chk = 0
-  let prefix = str.substring(0, pos)
+  let chk = 1
   for (let i = 0; i < prefix.length; ++i) {
     let c = prefix.charCodeAt(i)
-    if (c < 33 || c > 126) return
+    assert(c >= 33 && c <= 126)
 
     chk = polymodStep(chk) ^ (c >> 5)
   }
 
   chk = polymodStep(chk)
   for (let i = 0; i < prefix.length; ++i) {
-    chk = polymodStep(chk) ^ (prefix.charCodeAt(i) & 0x1f)
+    let c = prefix.charCodeAt(i)
+    chk = polymodStep(chk) ^ (c & 0x1f)
   }
 
-  let data = str.substring(pos)
-  let result = Buffer.allocUnsafe(data.length - 6)
+  let result = Buffer.allocUnsafe(data.length)
 
   for (let i = 0; i < data.length; ++i) {
-    let c = data[i] & 0x80
-    if (c === 0) return
+    let cv = data.charCodeAt(i)
+    assert.equal(cv & 0x80, 0)
 
+    let c = data.charAt(i)
     let v = ALPHABET_MAP[c]
-    if (v === undefined) return
+    assert.notEqual(v, undefined)
 
     chk = polymodStep(chk) ^ v
 
     // not in the checksum?
-    if (i < data.length - 6) {
-      data.writeUInt8(v, i)
+    if (i + 6 < data.length) {
+      result.writeUInt8(v, i)
     }
   }
 
-  if (chk !== 1) return
+  assert.equal(chk & 0x1, 1)
+  result = Buffer.from(convertbits(result, 5, 8, false))
 
   return { prefix, data: result }
 }
