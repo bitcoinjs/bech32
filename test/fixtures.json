@@ -3,32 +3,38 @@
     {
       "string": "BC1QW508D6QEJXTDG4Y5R3ZARVARY0C5XW7KV8F3T4",
       "prefix": "bc",
-      "hex": "03a8f3b740cc8cb6a2a4a0e22e8d9d191f8a19deb0"
+      "hex": "751e76e8199196d454941c45d1b3a323f1433bd6",
+      "version": 0
     },
     {
       "string": "tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7",
       "prefix": "tb",
-      "hex": "00c318a1e0a628b34025e8c9019ab6d09b64c2b3c66a693d0dc63194b02481931000"
+      "hex": "1863143c14c5166804bd19203356da136c985678cd4d27a1b8c6329604903262",
+      "version": 0
     },
     {
       "string": "bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx",
       "prefix": "bc",
-      "hex": "0ba8f3b740cc8cb6a2a4a0e22e8d9d191f8a19deb3a8f3b740cc8cb6a2a4a0e22e8d9d191f8a19deb0"
+      "hex": "751e76e8199196d454941c45d1b3a323f1433bd6751e76e8199196d454941c45d1b3a323f1433bd6",
+      "version": 1
     },
     {
       "string": "BC1SW50QA3JX3S",
       "prefix": "bc",
-      "hex": "83a8f000"
+      "hex": "751e",
+      "version": 16
     },
     {
       "string": "bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj",
       "prefix": "bc",
-      "hex": "13a8f3b740cc8cb6a2a4a0e22e8d9d1918"
+      "hex": "751e76e8199196d454941c45d1b3a323",
+      "version": 2
     },
     {
       "string": "tb1qqqqqp399et2xygdj5xreqhjjvcmzhxw4aywxecjdzew6hylgvsesrxh6hy",
       "prefix": "tb",
-      "hex": "00000006252e56a3110d950c3c82f29331b15cceaf48e3671268b2ed5c9f43219800"
+      "hex": "000000c4a5cad46221b2a187905e5266362b99d5e91c6ce24d165dab93e86433",
+      "version": 0
     },
     {
       "string": "A12UEL5L",
@@ -48,7 +54,7 @@
     {
       "string": "11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j",
       "prefix": "1",
-      "hex": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      "hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
     },
     {
       "string": "split1checkupstagehandshakeupstreamerranterredcaperred2y9e3w",

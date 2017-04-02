@@ -1,26 +1,7 @@
 let assert = require('assert')
-let ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
+let bech32 = require('./bech32')
 
-// pre-compute lookup table
-let ALPHABET_MAP = {}
-for (var z = 0; z < ALPHABET.length; z++) {
-  var x = ALPHABET.charAt(z)
-
-  if (ALPHABET_MAP[x] !== undefined) throw new TypeError(x + ' is ambiguous')
-  ALPHABET_MAP[x] = z
-}
-
-function polymodStep (pre) {
-  let b = pre >> 25
-  return ((pre & 0x1FFFFFF) << 5) ^
-    (-((b >> 0) & 1) & 0x3b6a57b2) ^
-    (-((b >> 1) & 1) & 0x26508e6d) ^
-    (-((b >> 2) & 1) & 0x1ea119fa) ^
-    (-((b >> 3) & 1) & 0x3d4233dd) ^
-    (-((b >> 4) & 1) & 0x2a1462b3)
-}
-
-function convertbits (data, inbits, outbits, pad) {
+function convertBits (data, inbits, outbits, pad) {
   let val = 0
   let bits = 0
   let maxv = (1 << outbits) - 1
@@ -40,111 +21,41 @@ function convertbits (data, inbits, outbits, pad) {
     if (bits > 0) {
       ret.push((val << (outbits - bits)) & maxv)
     }
-  } else if (bits >= inbits || ((val << (outbits - bits)) & maxv)) {
-    assert(false)
+  } else {
+    assert(bits < inbits)
+    assert(!((val << (outbits - bits)) & maxv))
   }
 
   return ret
 }
 
-function encode (prefix, data) {
-  data = Buffer.from(convertbits(data, 8, 5, true))
-
-  // too long?
-  assert((prefix.length + 7 + data.length) <= 90)
-
-  // determine chk mod
-  let chk = 1
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i) >> 5
-    assert.notEqual(c, 0)
-
-    chk = polymodStep(chk) ^ c
-  }
-  chk = polymodStep(chk)
-
-  let result = ''
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charAt(i)
-    let v = prefix.charCodeAt(i)
-    chk = polymodStep(chk) ^ (v & 0x1f)
-
-    result += c
-  }
-  result += '1'
-
-  for (let i = 0; i < data.length; ++i) {
-    let x = data[i]
-    assert.equal(x >> 5, 0)
-
-    chk = polymodStep(chk) ^ x
-    result += ALPHABET.charAt(x)
+function encode (prefix, version, program) {
+  // witness version 0 length checks
+  if (version === 0) {
+    assert((program.length === 20) || (program.length === 32))
   }
 
-  for (let i = 0; i < 6; ++i) {
-    chk = polymodStep(chk)
-  }
-  chk ^= 1
+  let bitData = convertBits(program, 8, 5, true)
+  bitData.unshift(version)
 
-  for (let i = 0; i < 6; ++i) {
-    let v = (chk >> ((5 - i) * 5)) & 0x1f
-    result += ALPHABET.charAt(v)
-  }
-
-  return result
+  return bech32.encode(prefix, bitData)
 }
 
-function decode (str) {
-  assert(str.length >= 8)
-  assert(str.length <= 90)
+function decode (expectedPrefix, string) {
+  let result = bech32.decode(string)
+  assert.equal(result.prefix, expectedPrefix)
 
-  // don't allow mixed case
-  let lowered = str.toLowerCase()
-  assert.equal(str, lowered)
+  assert((result.bitData.length > 0) && (result.bitData.length < 65))
+  let version = result.bitData[0]
+  let program = convertBits(result.bitData.slice(1), 5, 8, false)
+  assert((program.length > 1) && (program.length < 41))
 
-  let split = str.lastIndexOf('1')
-  let prefix = str.slice(0, split)
-  let data = str.slice(split + 1)
-  assert(prefix.length >= 1)
-  assert(data.length >= 6)
-
-  let chk = 1
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
-    assert(c >= 33 && c <= 126)
-
-    chk = polymodStep(chk) ^ (c >> 5)
+  // witness version 0 length checks
+  if (version === 0) {
+    assert((program.length === 20) || (program.length === 32))
   }
 
-  chk = polymodStep(chk)
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
-    chk = polymodStep(chk) ^ (c & 0x1f)
-  }
-
-  // NOTE: zero-fill required
-  let result = Buffer.alloc(data.length)
-
-  for (let i = 0; i < data.length; ++i) {
-    let cv = data.charCodeAt(i)
-    assert.equal(cv & 0x80, 0)
-
-    let c = data.charAt(i)
-    let v = ALPHABET_MAP[c]
-    assert.notEqual(v, undefined)
-
-    chk = polymodStep(chk) ^ v
-
-    // not in the checksum?
-    if (i + 6 < data.length) {
-      result.writeUInt8(v, i)
-    }
-  }
-
-  assert.equal(chk & 0x1, 1)
-  result = Buffer.from(convertbits(result.slice(0, -3), 5, 8, false)).slice(0, -1)
-
-  return { prefix, data: result }
+  return { version, program }
 }
 
-module.exports = { decode, encode }
+module.exports = { encode, decode }
