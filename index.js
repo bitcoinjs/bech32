@@ -55,20 +55,22 @@ function encode (prefix, data) {
   assert((prefix.length + 7 + data.length) <= 90)
 
   // determine chk mod
-  let chk = 0 | 0
+  let chk = 1
   for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
-    assert.notEqual(c >> 5, 0)
+    let c = prefix.charCodeAt(i) >> 5
+    assert.notEqual(c, 0)
 
-    chk = polymodStep(chk) ^ (c >> 5)
+    chk = polymodStep(chk) ^ c
   }
+  chk = polymodStep(chk)
 
   let result = ''
   for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
-    chk = polymodStep(chk) ^ (c & 0x1f)
+    let c = prefix.charAt(i)
+    let v = prefix.charCodeAt(i)
+    chk = polymodStep(chk) ^ (v & 0x1f)
 
-    result += String.fromCharCode(c)
+    result += c
   }
   result += '1'
 
@@ -86,7 +88,7 @@ function encode (prefix, data) {
   chk ^= 1
 
   for (let i = 0; i < 6; ++i) {
-    let v = chk >> ((5 - i) * 5) & 0x1f
+    let v = (chk >> ((5 - i) * 5)) & 0x1f
     result += ALPHABET.charAt(v)
   }
 

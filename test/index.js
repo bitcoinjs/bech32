@@ -7,10 +7,10 @@ fixtures.valid.forEach((f, i) => {
   let string = f.string.toLowerCase()
   let buffer = Buffer.from(f.hex, 'hex')
 
-//   tape('encode ' + string, (t) => {
-//     t.plan(1)
-//     t.same(bech32.encode(f.prefix, buffer), string)
-//   })
+  tape('encode ' + string, (t) => {
+    t.plan(1)
+    t.same(bech32.encode(f.prefix, buffer), string)
+  })
 
   tape('decode ' + string, (t) => {
     t.plan(1)
