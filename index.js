@@ -41,8 +41,8 @@ function convertbits (data, inbits, outbits, pad) {
       ret.push((val << (outbits - bits)) & maxv)
     }
   } else {
-    assert(!((val << (outbits - bits)) & maxv))
-    assert(bits < inbits)
+//     assert(!((val << (outbits - bits)) & maxv))
+//     assert(bits < inbits)
   }
 
   return ret
@@ -121,7 +121,8 @@ function decode (str) {
     chk = polymodStep(chk) ^ (c & 0x1f)
   }
 
-  let result = Buffer.allocUnsafe(data.length)
+  // NOTE: zero-fill required
+  let result = Buffer.alloc(data.length)
 
   for (let i = 0; i < data.length; ++i) {
     let cv = data.charCodeAt(i)
@@ -140,7 +141,7 @@ function decode (str) {
   }
 
   assert.equal(chk & 0x1, 1)
-  result = Buffer.from(convertbits(result, 5, 8, false))
+  result = Buffer.from(convertbits(result.slice(0, -3), 5, 8, false)).slice(0, -1)
 
   return { prefix, data: result }
 }

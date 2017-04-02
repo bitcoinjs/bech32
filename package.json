@@ -28,6 +28,7 @@
     "type": "git"
   },
   "scripts": {
-    "standard": "standard"
+    "standard": "standard",
+    "test": "tape test/index.js | tap-dot"
   }
 }
