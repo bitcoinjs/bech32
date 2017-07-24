@@ -94,7 +94,7 @@ function decode (str) {
   }
 
   // NOTE: zero-fill required
-  let result = Buffer.alloc(bitData.length)
+  let result = Buffer.alloc(bitData.length - 6)
 
   for (let i = 0; i < bitData.length; ++i) {
     let cv = bitData.charCodeAt(i)

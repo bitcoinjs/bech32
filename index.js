@@ -45,7 +45,7 @@ function decode (expectedPrefix, string) {
   let result = bech32.decode(string)
   assert.equal(result.prefix, expectedPrefix)
 
-  assert((result.bitData.length > 0) && (result.bitData.length < 65))
+  assert((result.bitData.length > 0) && (result.bitData.length < 66))
   let version = result.bitData[0]
   let program = convertBits(result.bitData.slice(1), 5, 8, false)
   assert((program.length > 1) && (program.length < 41))
@@ -55,7 +55,7 @@ function decode (expectedPrefix, string) {
     assert((program.length === 20) || (program.length === 32))
   }
 
-  return { version, program }
+  return { version, program: Buffer.from(program) }
 }
 
 module.exports = { encode, decode }
