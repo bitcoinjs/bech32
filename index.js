@@ -1,3 +1,4 @@
+'use strict'
 let assert = require('assert')
 let bech32 = require('./bech32')
 

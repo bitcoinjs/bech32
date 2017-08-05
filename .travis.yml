@@ -12,5 +12,5 @@ matrix:
     - node_js: "7"
       env: TEST_SUITE=coverage
 env:
-  - TEST_SUITE=unit
+  - TEST_SUITE=test
 script: npm run-script $TEST_SUITE

@@ -1,3 +1,4 @@
+'use strict'
 let assert = require('assert')
 let ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 

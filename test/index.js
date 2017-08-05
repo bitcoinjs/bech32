@@ -1,3 +1,4 @@
+'use strict'
 let tape = require('tape')
 let fixtures = require('./fixtures')
 let bech32 = require('../')

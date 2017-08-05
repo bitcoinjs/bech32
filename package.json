@@ -20,14 +20,17 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
+    "nyc": "^10.2.0",
     "standard": "*",
-    "tape": "^4.6.3"
+    "tape": "^4.6.3",
+    "tap-dot": "*"
   },
   "repository": {
     "url": "http://github.com/bitcoinjs/bech32",
     "type": "git"
   },
   "scripts": {
+    "coverage": "nyc --check-coverage --branches 90 --functions 90 tape test/index.js",
     "standard": "standard",
     "test": "tape test/index.js | tap-dot"
   }
