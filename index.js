@@ -59,4 +59,4 @@ function decode (expectedPrefix, string) {
   return { version, program: Buffer.from(program) }
 }
 
-module.exports = { encode, decode }
+module.exports = { encode, decode, convertBits }
