@@ -1,6 +1,5 @@
 'use strict'
 let tape = require('tape')
-let assert = require('assert')
 let fixtures = require('./fixtures')
 let bech32 = require('../')
 
@@ -28,7 +27,7 @@ fixtures.bech32.valid.forEach((f, i) => {
 
 fixtures.addresses.valid.forEach((f, i) => {
   // unlike the reference impl., we don't support mixed/uppercase
-  let string = f.string.toLowerCase();
+  let string = f.string.toLowerCase()
   let buffer = Buffer.from(f.hex, 'hex')
 
   tape('encode ' + string, (t) => {
