@@ -27,27 +27,32 @@ fixtures.bech32.valid.forEach((f, i) => {
 
 fixtures.addresses.valid.forEach((f, i) => {
   // unlike the reference impl., we don't support mixed/uppercase
-  let string = f.string.toLowerCase()
+  let string = f.string
   let buffer = Buffer.from(f.hex, 'hex')
+  let data = [f.version].concat(bech32.convertBits(buffer, 8, 5, true))
 
   tape('encode ' + string, (t) => {
     t.plan(1)
-    let data = [f.version].concat(bech32.convertBits(buffer, 8, 5, true))
-    t.same(bech32.encode(f.prefix, data), string)
+    let encoded = bech32.encode(f.prefix, data)
+    t.same(encoded, string.toLowerCase())
   })
 
-  tape('decode ' + string, (t) => {
-    t.plan(2)
+  tape('decode ' + string + ' as valid base58', (t) => {
+    t.plan(4)
 
-    let actual = bech32.decode(string)
-    let data = [f.version].concat(bech32.convertBits(buffer, 8, 5, true))
-
-    t.same(actual, {
+    let result = bech32.decode(string)
+    t.same(result, {
       prefix: f.prefix,
       bitData: data
     })
 
     let addr = bech32.encode(f.prefix, data)
-    t.same(addr, string)
+    t.same(addr, string.toLowerCase())
+
+    let version = result.bitData[0]
+    let program = bech32.convertBits(result.bitData.slice(1), 5, 8, false)
+
+    t.same(version, f.version)
+    t.same(Buffer.from(program).toString('hex'), f.hex)
   })
 })
