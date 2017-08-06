@@ -4,7 +4,7 @@ let fixtures = require('./fixtures')
 let bech32 = require('../')
 
 fixtures.bech32.valid.forEach((f, i) => {
-  let good = f.string.toLowerCase()
+  let good = f.string
   let pos = good.lastIndexOf('1')
   let bad = good.slice(0, pos + 1) +
     String.fromCharCode(good.charCodeAt(pos + 1) ^ 1) +
