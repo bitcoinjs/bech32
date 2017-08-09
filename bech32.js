@@ -35,16 +35,12 @@ function encode (prefix, words) {
   }
   chk = polymodStep(chk)
 
-  let result = ''
   for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charAt(i)
     let v = prefix.charCodeAt(i)
     chk = polymodStep(chk) ^ (v & 0x1f)
-
-    result += c
   }
-  result += '1'
 
+  let result = prefix + '1'
   for (let i = 0; i < words.length; ++i) {
     let x = words[i]
     if ((x >> 5) !== 0) throw new Error('Non 5-bit word')
@@ -75,9 +71,10 @@ function decode (str) {
   if (str !== lowered) throw new Error('Non-lowercase string ' + str)
 
   let split = str.lastIndexOf('1')
+  if (split === 0) throw new Error('Missing prefix for ' + str)
+
   let prefix = str.slice(0, split)
   let wordChars = str.slice(split + 1)
-  if (prefix.length < 1) throw new Error('Missing prefix for ' + str)
   if (wordChars.length < 6) throw new Error('Data too short')
 
   // determine chk mod
