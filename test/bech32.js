@@ -16,14 +16,14 @@ fixtures.bech32.valid.forEach((f) => {
   tape(`encode ${f.prefix} ${f.hex}`, (t) => {
     t.plan(1)
 
-    t.strictEqual(bech32.encode(f.prefix, f.words), f.string)
+    t.strictEqual(bech32.encode(f.prefix, f.words), f.string.toLowerCase())
   })
 
   tape(`decode ${f.string}`, (t) => {
     t.plan(1)
 
     t.same(bech32.decode(f.string), {
-      prefix: f.prefix,
+      prefix: f.prefix.toLowerCase(),
       words: f.words
     })
   })

@@ -110,8 +110,8 @@
   "bech32": {
     "valid": [
       {
-        "string": "a12uel5l",
-        "prefix": "a",
+        "string": "A12UEL5L",
+        "prefix": "A",
         "hex": "",
         "words": []
       },
@@ -142,8 +142,8 @@
     ],
     "invalid": [
       {
-        "string": "A12UEL5L",
-        "exception": "Non-lowercase string A12UEL5L"
+        "string": "A12Uel5l",
+        "exception": "Mixed-case string A12Uel5l"
       },
       {
         "string": " 1nwldj5",

@@ -68,7 +68,9 @@ function decode (str) {
 
   // don't allow mixed case
   let lowered = str.toLowerCase()
-  if (str !== lowered) throw new Error('Non-lowercase string ' + str)
+  let uppered = str.toUpperCase()
+  if (str !== lowered && str !== uppered) throw new Error('Mixed-case string ' + str)
+  str = lowered
 
   let split = str.lastIndexOf('1')
   if (split === 0) throw new Error('Missing prefix for ' + str)
