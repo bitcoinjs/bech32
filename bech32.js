@@ -20,12 +20,7 @@ function polymodStep (pre) {
     (-((b >> 4) & 1) & 0x2a1462b3)
 }
 
-function encode (prefix, words) {
-  // too long?
-  if ((prefix.length + 7 + words.length) > 90) throw new TypeError('Exceeds Bech32 maximum length')
-  prefix = prefix.toLowerCase()
-
-  // determine chk mod
+function prefixChk (prefix) {
   let chk = 1
   for (let i = 0; i < prefix.length; ++i) {
     let c = prefix.charCodeAt(i)
@@ -39,7 +34,16 @@ function encode (prefix, words) {
     let v = prefix.charCodeAt(i)
     chk = polymodStep(chk) ^ (v & 0x1f)
   }
+  return chk
+}
 
+function encode (prefix, words) {
+  // too long?
+  if ((prefix.length + 7 + words.length) > 90) throw new TypeError('Exceeds Bech32 maximum length')
+  prefix = prefix.toLowerCase()
+
+  // determine chk mod
+  let chk = prefixChk(prefix)
   let result = prefix + '1'
   for (let i = 0; i < words.length; ++i) {
     let x = words[i]
@@ -79,21 +83,7 @@ function decode (str) {
   let wordChars = str.slice(split + 1)
   if (wordChars.length < 6) throw new Error('Data too short')
 
-  // determine chk mod
-  let chk = 1
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
-    if (c < 33 || c > 126) throw new Error('Invalid prefix (' + prefix + ')')
-
-    chk = polymodStep(chk) ^ (c >> 5)
-  }
-  chk = polymodStep(chk)
-
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
-    chk = polymodStep(chk) ^ (c & 0x1f)
-  }
-
+  let chk = prefixChk(prefix)
   let words = []
   for (let i = 0; i < wordChars.length; ++i) {
     let c = wordChars.charAt(i)
