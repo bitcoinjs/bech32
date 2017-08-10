@@ -1,5 +1,4 @@
 'use strict'
-let assert = require('assert')
 let ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 
 // pre-compute lookup table
@@ -21,33 +20,34 @@ function polymodStep (pre) {
     (-((b >> 4) & 1) & 0x2a1462b3)
 }
 
-function encode (prefix, bitData) {
-  // too long?
-  assert((prefix.length + 7 + bitData.length) <= 90)
-
-  // determine chk mod
+function prefixChk (prefix) {
   let chk = 1
   for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i) >> 5
-    assert.notEqual(c, 0)
+    let c = prefix.charCodeAt(i)
+    if (c < 33 || c > 126) throw new Error('Invalid prefix (' + prefix + ')')
 
-    chk = polymodStep(chk) ^ c
+    chk = polymodStep(chk) ^ (c >> 5)
   }
   chk = polymodStep(chk)
 
-  let result = ''
   for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charAt(i)
     let v = prefix.charCodeAt(i)
     chk = polymodStep(chk) ^ (v & 0x1f)
-
-    result += c
   }
-  result += '1'
+  return chk
+}
 
-  for (let i = 0; i < bitData.length; ++i) {
-    let x = bitData[i]
-    assert.equal(x >> 5, 0)
+function encode (prefix, words) {
+  // too long?
+  if ((prefix.length + 7 + words.length) > 90) throw new TypeError('Exceeds Bech32 maximum length')
+  prefix = prefix.toLowerCase()
+
+  // determine chk mod
+  let chk = prefixChk(prefix)
+  let result = prefix + '1'
+  for (let i = 0; i < words.length; ++i) {
+    let x = words[i]
+    if ((x >> 5) !== 0) throw new Error('Non 5-bit word')
 
     chk = polymodStep(chk) ^ x
     result += ALPHABET.charAt(x)
@@ -67,55 +67,73 @@ function encode (prefix, bitData) {
 }
 
 function decode (str) {
-  assert(str.length >= 8)
-  assert(str.length <= 90)
+  if (str.length < 8) throw new TypeError(str + ' too short')
+  if (str.length > 90) throw new TypeError(str + ' too long')
 
   // don't allow mixed case
   let lowered = str.toLowerCase()
-  assert.equal(str, lowered)
+  let uppered = str.toUpperCase()
+  if (str !== lowered && str !== uppered) throw new Error('Mixed-case string ' + str)
+  str = lowered
 
   let split = str.lastIndexOf('1')
+  if (split === 0) throw new Error('Missing prefix for ' + str)
+
   let prefix = str.slice(0, split)
-  let bitData = str.slice(split + 1)
-  assert(prefix.length >= 1)
-  assert(bitData.length >= 6)
+  let wordChars = str.slice(split + 1)
+  if (wordChars.length < 6) throw new Error('Data too short')
 
-  let chk = 1
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
-    assert(c >= 33 && c <= 126)
-
-    chk = polymodStep(chk) ^ (c >> 5)
-  }
-
-  chk = polymodStep(chk)
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
-    chk = polymodStep(chk) ^ (c & 0x1f)
-  }
-
-  // NOTE: zero-fill required
-  let result = Buffer.alloc(bitData.length - 6)
-
-  for (let i = 0; i < bitData.length; ++i) {
-    let cv = bitData.charCodeAt(i)
-    assert.equal(cv & 0x80, 0)
-
-    let c = bitData.charAt(i)
+  let chk = prefixChk(prefix)
+  let words = []
+  for (let i = 0; i < wordChars.length; ++i) {
+    let c = wordChars.charAt(i)
     let v = ALPHABET_MAP[c]
-    assert.notEqual(v, undefined)
-
+    if (v === undefined) throw new Error('Unknown character ' + c)
     chk = polymodStep(chk) ^ v
 
     // not in the checksum?
-    if (i + 6 < bitData.length) {
-      result.writeUInt8(v, i)
+    if (i + 6 >= wordChars.length) continue
+    words.push(v)
+  }
+
+  if (chk !== 1) throw new Error('Invalid checksum for ' + str)
+  return { prefix, words }
+}
+
+function convert (data, inBits, outBits, pad) {
+  let value = 0
+  let bits = 0
+  let maxV = (1 << outBits) - 1
+
+  let result = []
+  for (let i = 0; i < data.length; ++i) {
+    value = (value << inBits) | data[i]
+    bits += inBits
+
+    while (bits >= outBits) {
+      bits -= outBits
+      result.push((value >> bits) & maxV)
     }
   }
 
-  assert.equal(chk & 0x1, 1)
+  if (pad) {
+    if (bits > 0) {
+      result.push((value << (outBits - bits)) & maxV)
+    }
+  } else {
+    if (bits >= inBits) throw new Error('Excess padding')
+    if ((value << (outBits - bits)) & maxV) throw new Error('Non-zero padding')
+  }
 
-  return { prefix, bitData: result }
+  return result
 }
 
-module.exports = { decode, encode }
+function toWords (bytes) {
+  return convert(bytes, 8, 5, true)
+}
+
+function fromWords (words) {
+  return convert(words, 5, 8, false)
+}
+
+module.exports = { decode, encode, toWords, fromWords }

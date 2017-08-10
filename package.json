@@ -30,8 +30,8 @@
     "type": "git"
   },
   "scripts": {
-    "coverage": "nyc --check-coverage --branches 90 --functions 90 tape test/index.js",
+    "coverage": "nyc --check-coverage --branches 90 --functions 90 tape test/*.js",
     "standard": "standard",
-    "test": "tape test/index.js | tap-dot"
+    "test": "tape test/*.js | tap-dot"
   }
 }
