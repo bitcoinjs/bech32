@@ -3,33 +3,50 @@ let tape = require('tape')
 let fixtures = require('./fixtures')
 let bech32 = require('../')
 
-fixtures.addresses.valid.forEach((f, i) => {
-  // unlike the reference impl., we don't support mixed/uppercase
-  let string = f.string.toLowerCase()
-  let buffer = Buffer.from(f.hex, 'hex')
+fixtures.bech32.valid.forEach((f) => {
+  tape(`fromWords/toWords ${f.hex}`, (t) => {
+    t.plan(2)
 
-  tape('encode ' + string, (t) => {
-    t.plan(1)
-    t.same(bech32.encode(f.prefix, f.version, buffer), string)
+    let words = bech32.toWords(Buffer.from(f.hex, 'hex'))
+    let bytes = Buffer.from(bech32.fromWords(f.words))
+    t.same(words, f.words)
+    t.same(bytes.toString('hex'), f.hex)
   })
 
-  tape('decode ' + string, (t) => {
+  tape(`encode ${f.prefix} ${f.hex}`, (t) => {
     t.plan(1)
 
-    t.same(bech32.decode(string, f.prefix), {
-      version: f.version,
-      program: buffer
+    t.strictEqual(bech32.encode(f.prefix, f.words), f.string.toLowerCase())
+  })
+
+  tape(`decode ${f.string}`, (t) => {
+    t.plan(1)
+
+    t.same(bech32.decode(f.string), {
+      prefix: f.prefix.toLowerCase(),
+      words: f.words
     })
+  })
+
+  tape(`fails for ${f.string} with 1 bit flipped`, (t) => {
+    t.plan(1)
+
+    let buffer = Buffer.from(f.string, 'utf8')
+    buffer[f.string.lastIndexOf('1') + 1] ^= 0x1 // flip a bit, after the prefix
+    let string = buffer.toString('utf8')
+    t.throws(function () {
+      bech32.decode(string)
+    }, new RegExp('Invalid checksum|Unknown character'))
   })
 })
 
-fixtures.addresses.invalid.forEach((f, i) => {
-  if (f.ignore) return
-  if (f.prefix && f.version !== undefined && f.program !== undefined) {
-    tape(`encode fails (${f.exception})`, (t) => {
+fixtures.bech32.invalid.forEach((f) => {
+  if (f.prefix !== undefined && f.words !== undefined) {
+    tape(`encode fails with (${f.exception})`, (t) => {
       t.plan(1)
+
       t.throws(function () {
-        bech32.encode(f.prefix, f.version, Buffer.from(f.program, 'hex'))
+        bech32.encode(f.prefix, f.words)
       }, new RegExp(f.exception))
     })
   }
@@ -38,8 +55,17 @@ fixtures.addresses.invalid.forEach((f, i) => {
     tape(`decode fails for ${f.string} (${f.exception})`, (t) => {
       t.plan(1)
       t.throws(function () {
-        bech32.decode(f.string, f.prefix)
+        bech32.decode(f.string)
       }, new RegExp(f.exception))
     })
   }
+})
+
+fixtures.fromWords.invalid.forEach((f) => {
+  tape(`fromWords fails with ${f.exception}`, (t) => {
+    t.plan(1)
+    t.throws(function () {
+      bech32.fromWords(f.words)
+    }, new RegExp(f.exception))
+  })
 })
