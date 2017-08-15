@@ -3,8 +3,8 @@ let ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 
 // pre-compute lookup table
 let ALPHABET_MAP = {}
-for (var z = 0; z < ALPHABET.length; z++) {
-  var x = ALPHABET.charAt(z)
+for (let z = 0; z < ALPHABET.length; z++) {
+  let x = ALPHABET.charAt(z)
 
   if (ALPHABET_MAP[x] !== undefined) throw new TypeError(x + ' is ambiguous')
   ALPHABET_MAP[x] = z
