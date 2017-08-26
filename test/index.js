@@ -51,11 +51,13 @@ fixtures.bech32.invalid.forEach((f) => {
     })
   }
 
-  if (f.string !== undefined) {
-    tape(`decode fails for ${f.string} (${f.exception})`, (t) => {
+  if (f.string !== undefined || f.stringHex) {
+    let string = f.string || Buffer.from(f.stringHex, 'hex').toString('utf8')
+
+    tape(`decode fails for ${string} (${f.exception})`, (t) => {
       t.plan(1)
       t.throws(function () {
-        bech32.decode(f.string)
+        bech32.decode(string)
       }, new RegExp(f.exception))
     })
   }

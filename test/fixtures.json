@@ -106,8 +106,8 @@
         "exception": "Data too short"
       },
       {
-        "string": "de1lg7wt\\xff",
-        "exception": "Unknown character \\\\"
+        "stringHex": "6465316c67377774ff",
+        "exception": "Unknown character "
       }
     ]
   }
