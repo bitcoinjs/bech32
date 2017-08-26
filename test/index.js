@@ -52,7 +52,7 @@ fixtures.bech32.invalid.forEach((f) => {
   }
 
   if (f.string !== undefined || f.stringHex) {
-    let string = f.string || Buffer.from(f.stringHex, 'hex').toString('utf8')
+    let string = f.string || Buffer.from(f.stringHex, 'hex').toString('binary')
 
     tape(`decode fails for ${string} (${f.exception})`, (t) => {
       t.plan(1)
