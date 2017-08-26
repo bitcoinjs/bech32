@@ -96,6 +96,14 @@
         "prefix": "abc\u00ff",
         "words": [18],
         "exception": "Invalid prefix \\(abc\u00ff\\)"
+      },
+      {
+        "string": "li1dgmt3",
+        "exception": "Data too short"
+      },
+      {
+        "string": "de1lg7wt\\xff",
+        "exception": "Unknown character \\\\"
       }
     ]
   }
