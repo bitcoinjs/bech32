@@ -78,6 +78,10 @@
         "exception": "Data too short"
       },
       {
+        "string": "s1vcsyn",
+        "exception": "s1vcsyn too short"
+      },
+      {
         "prefix": "abc",
         "words": [128],
         "exception": "Non 5-bit word"
