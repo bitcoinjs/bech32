@@ -78,6 +78,10 @@
         "exception": "Data too short"
       },
       {
+        "string": "s1vcsyn",
+        "exception": "s1vcsyn too short"
+      },
+      {
         "prefix": "abc",
         "words": [128],
         "exception": "Non 5-bit word"
@@ -96,6 +100,14 @@
         "prefix": "abc\u00ff",
         "words": [18],
         "exception": "Invalid prefix \\(abc\u00ff\\)"
+      },
+      {
+        "string": "li1dgmt3",
+        "exception": "Data too short"
+      },
+      {
+        "stringHex": "6465316c67377774ff",
+        "exception": "Unknown character "
       }
     ]
   }
