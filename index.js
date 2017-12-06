@@ -38,8 +38,6 @@ function prefixChk (prefix) {
 }
 
 function encode (prefix, words) {
-  // too long?
-  if ((prefix.length + 7 + words.length) > 90) throw new TypeError('Exceeds Bech32 maximum length')
   prefix = prefix.toLowerCase()
 
   // determine chk mod
@@ -68,7 +66,6 @@ function encode (prefix, words) {
 
 function decode (str) {
   if (str.length < 8) throw new TypeError(str + ' too short')
-  if (str.length > 90) throw new TypeError(str + ' too long')
 
   // don't allow mixed case
   let lowered = str.toLowerCase()
