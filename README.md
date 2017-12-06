@@ -4,6 +4,8 @@
 
 A [BIP173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki) compatible Bech32 encoding/decoding library.
 
+***Note***: We have removed the 90 character max limit in order to accomodate for other protocols. The 90 character length requirement will be checked inside bitcoinjs-lib for bitcoin bech32 addresses. 
+
 
 ## Example
 ``` javascript
