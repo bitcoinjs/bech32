@@ -58,10 +58,6 @@
         "exception": "abc1rzg too short"
       },
       {
-        "string": "an84characterslonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1569pvx",
-        "exception": "an84characterslonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1569pvx too long"
-      },
-      {
         "string": "x1b4n0q5v",
         "exception": "Unknown character b"
       },
@@ -85,16 +81,6 @@
         "prefix": "abc",
         "words": [128],
         "exception": "Non 5-bit word"
-      },
-      {
-        "prefix": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzfoobarfoobar",
-        "words": [128],
-        "exception": "Exceeds Bech32 maximum length"
-      },
-      {
-        "prefix": "foobar",
-        "words": [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
-        "exception": "Exceeds Bech32 maximum length"
       },
       {
         "prefix": "abc\u00ff",
