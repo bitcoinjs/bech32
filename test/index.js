@@ -15,14 +15,12 @@ fixtures.bech32.valid.forEach((f) => {
 
   tape(`encode ${f.prefix} ${f.hex}`, (t) => {
     t.plan(1)
-
-    t.strictEqual(bech32.encode(f.prefix, f.words), f.string.toLowerCase())
+    t.strictEqual(bech32.encode(f.prefix, f.words, f.limit), f.string.toLowerCase())
   })
 
   tape(`decode ${f.string}`, (t) => {
     t.plan(1)
-
-    t.same(bech32.decode(f.string), {
+    t.same(bech32.decode(f.string, f.limit), {
       prefix: f.prefix.toLowerCase(),
       words: f.words
     })
@@ -35,7 +33,7 @@ fixtures.bech32.valid.forEach((f) => {
     buffer[f.string.lastIndexOf('1') + 1] ^= 0x1 // flip a bit, after the prefix
     let string = buffer.toString('utf8')
     t.throws(function () {
-      bech32.decode(string)
+      bech32.decode(string, f.limit)
     }, new RegExp('Invalid checksum|Unknown character'))
   })
 })

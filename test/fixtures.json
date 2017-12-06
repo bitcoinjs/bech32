@@ -42,6 +42,13 @@
         "prefix": "split",
         "hex": "c5f38b70305f519bf66d85fb6cf03058f3dde463ecd7918f2dc743918f2d",
         "words": [24,23,25,24,22,28,1,16,11,29,8,25,23,29,19,13,16,23,29,22,25,28,1,16,11,3,25,29,27,25,3,3,29,19,11,25,3,3,25,13,24,29,1,25,3,3,25,13]
+      },
+      {
+        "string": "11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq978ear",
+        "prefix": "1",
+        "hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "words": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        "limit": 300
       }
     ],
     "invalid": [
@@ -56,6 +63,10 @@
       {
         "string": "abc1rzg",
         "exception": "abc1rzg too short"
+      },
+      {
+        "string": "an84characterslonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1569pvx",
+        "exception": "Exceeds length limit"
       },
       {
         "string": "x1b4n0q5v",
@@ -81,6 +92,26 @@
         "prefix": "abc",
         "words": [128],
         "exception": "Non 5-bit word"
+      },
+      {
+        "prefix": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzfoobarfoobar",
+        "words": [128],
+        "exception": "Exceeds length limit"
+      },
+      {
+        "prefix": "foobar",
+        "words": [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20],
+        "exception": "Exceeds length limit"
+      },
+      {
+        "prefix": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzfoobarfoobarfoobarfoobar",
+        "words": [128],
+        "limit": 104,
+        "exception": "Exceeds length limit"
+      },
+      {
+        "string": "11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j",
+        "exception": "Exceeds length limit"
       },
       {
         "prefix": "abc\u00ff",
