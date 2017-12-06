@@ -37,9 +37,10 @@ function prefixChk (prefix) {
   return chk
 }
 
-function encode (prefix, words) {
-  // too long?
-  if ((prefix.length + 7 + words.length) > 90) throw new TypeError('Exceeds Bech32 maximum length')
+function encode (prefix, words, LIMIT) {
+  LIMIT = LIMIT || 90
+  if ((prefix.length + 7 + words.length) > LIMIT) throw new TypeError('Exceeds length limit')
+
   prefix = prefix.toLowerCase()
 
   // determine chk mod
@@ -66,9 +67,10 @@ function encode (prefix, words) {
   return result
 }
 
-function decode (str) {
+function decode (str, LIMIT) {
+  LIMIT = LIMIT || 90
   if (str.length < 8) throw new TypeError(str + ' too short')
-  if (str.length > 90) throw new TypeError(str + ' too long')
+  if (str.length > LIMIT) throw new TypeError('Exceeds length limit')
 
   // don't allow mixed case
   let lowered = str.toLowerCase()
