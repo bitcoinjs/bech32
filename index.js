@@ -130,12 +130,14 @@ function convert (data, inBits, outBits, pad) {
   return result
 }
 
-function toWords (bytes) {
-  return convert(bytes, 8, 5, true)
+function toWords (bytes, pad) {
+  if (pad === undefined) pad = true
+  return convert(bytes, 8, 5, pad)
 }
 
-function fromWords (words) {
-  return convert(words, 5, 8, false)
+function fromWords (words, pad) {
+  if (pad === undefined) pad = false
+  return convert(words, 5, 8, pad)
 }
 
-module.exports = { decode, encode, toWords, fromWords }
+module.exports = { decode, encode, convert, toWords, fromWords }
