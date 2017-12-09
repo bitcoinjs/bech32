@@ -61,11 +61,30 @@ fixtures.bech32.invalid.forEach((f) => {
   }
 })
 
+fixtures.toWords.invalid.forEach((f) => {
+  tape(`toWords passes`, (t) => {
+    t.plan(1)
+    t.throws(function () {
+      bech32.toWords(f.words, f.padding)
+    }, new RegExp(f.exception))
+  })
+})
+
+fixtures.fromWords.valid.forEach((f) => {
+  tape(`fromWords passes`, (t) => {
+    t.plan(1)
+    t.same(
+      Buffer.from(f.hex, 'hex'),
+      Buffer.from(bech32.fromWords(f.words, f.padding))
+    )
+  })
+})
+
 fixtures.fromWords.invalid.forEach((f) => {
   tape(`fromWords fails with ${f.exception}`, (t) => {
     t.plan(1)
     t.throws(function () {
-      bech32.fromWords(f.words)
+      bech32.fromWords(f.words, f.padding)
     }, new RegExp(f.exception))
   })
 })
