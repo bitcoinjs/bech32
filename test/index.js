@@ -61,11 +61,21 @@ fixtures.bech32.invalid.forEach((f) => {
   }
 })
 
+fixtures.fromWords.valid.forEach((f) => {
+  tape(`fromWords passes with trimming`, (t) => {
+    t.plan(1)
+    t.same(
+      Buffer.from(f.hex, 'hex'),
+      Buffer.from(bech32.fromWords(f.words, f.trim))
+    )
+  })
+})
+
 fixtures.fromWords.invalid.forEach((f) => {
   tape(`fromWords fails with ${f.exception}`, (t) => {
     t.plan(1)
     t.throws(function () {
-      bech32.fromWords(f.words)
+      bech32.fromWords(f.words, f.trim)
     }, new RegExp(f.exception))
   })
 })

@@ -134,8 +134,11 @@ function toWords (bytes) {
   return convert(bytes, 8, 5, true)
 }
 
-function fromWords (words) {
+function fromWords (words, trim) {
+  if (trim && words.length * 5 % 8 !== 0) {
+    return convert(words, 5, 8, true).slice(0, -1)
+  }
   return convert(words, 5, 8, false)
 }
 
-module.exports = { decode, encode, toWords, fromWords }
+module.exports = { decode, encode, convert, toWords, fromWords }
