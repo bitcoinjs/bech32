@@ -1,17 +1,17 @@
 'use strict'
-let ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
+var ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 
 // pre-compute lookup table
-let ALPHABET_MAP = {}
-for (let z = 0; z < ALPHABET.length; z++) {
-  let x = ALPHABET.charAt(z)
+var ALPHABET_MAP = {}
+for (var z = 0; z < ALPHABET.length; z++) {
+  var x = ALPHABET.charAt(z)
 
   if (ALPHABET_MAP[x] !== undefined) throw new TypeError(x + ' is ambiguous')
   ALPHABET_MAP[x] = z
 }
 
 function polymodStep (pre) {
-  let b = pre >> 25
+  var b = pre >> 25
   return ((pre & 0x1FFFFFF) << 5) ^
     (-((b >> 0) & 1) & 0x3b6a57b2) ^
     (-((b >> 1) & 1) & 0x26508e6d) ^
@@ -21,17 +21,17 @@ function polymodStep (pre) {
 }
 
 function prefixChk (prefix) {
-  let chk = 1
-  for (let i = 0; i < prefix.length; ++i) {
-    let c = prefix.charCodeAt(i)
+  var chk = 1
+  for (var i = 0; i < prefix.length; ++i) {
+    var c = prefix.charCodeAt(i)
     if (c < 33 || c > 126) throw new Error('Invalid prefix (' + prefix + ')')
 
     chk = polymodStep(chk) ^ (c >> 5)
   }
   chk = polymodStep(chk)
 
-  for (let i = 0; i < prefix.length; ++i) {
-    let v = prefix.charCodeAt(i)
+  for (i = 0; i < prefix.length; ++i) {
+    var v = prefix.charCodeAt(i)
     chk = polymodStep(chk) ^ (v & 0x1f)
   }
   return chk
@@ -44,23 +44,23 @@ function encode (prefix, words, LIMIT) {
   prefix = prefix.toLowerCase()
 
   // determine chk mod
-  let chk = prefixChk(prefix)
-  let result = prefix + '1'
-  for (let i = 0; i < words.length; ++i) {
-    let x = words[i]
+  var chk = prefixChk(prefix)
+  var result = prefix + '1'
+  for (var i = 0; i < words.length; ++i) {
+    var x = words[i]
     if ((x >> 5) !== 0) throw new Error('Non 5-bit word')
 
     chk = polymodStep(chk) ^ x
     result += ALPHABET.charAt(x)
   }
 
-  for (let i = 0; i < 6; ++i) {
+  for (i = 0; i < 6; ++i) {
     chk = polymodStep(chk)
   }
   chk ^= 1
 
-  for (let i = 0; i < 6; ++i) {
-    let v = (chk >> ((5 - i) * 5)) & 0x1f
+  for (i = 0; i < 6; ++i) {
+    var v = (chk >> ((5 - i) * 5)) & 0x1f
     result += ALPHABET.charAt(v)
   }
 
@@ -73,23 +73,23 @@ function decode (str, LIMIT) {
   if (str.length > LIMIT) throw new TypeError('Exceeds length limit')
 
   // don't allow mixed case
-  let lowered = str.toLowerCase()
-  let uppered = str.toUpperCase()
+  var lowered = str.toLowerCase()
+  var uppered = str.toUpperCase()
   if (str !== lowered && str !== uppered) throw new Error('Mixed-case string ' + str)
   str = lowered
 
-  let split = str.lastIndexOf('1')
+  var split = str.lastIndexOf('1')
   if (split === 0) throw new Error('Missing prefix for ' + str)
 
-  let prefix = str.slice(0, split)
-  let wordChars = str.slice(split + 1)
+  var prefix = str.slice(0, split)
+  var wordChars = str.slice(split + 1)
   if (wordChars.length < 6) throw new Error('Data too short')
 
-  let chk = prefixChk(prefix)
-  let words = []
-  for (let i = 0; i < wordChars.length; ++i) {
-    let c = wordChars.charAt(i)
-    let v = ALPHABET_MAP[c]
+  var chk = prefixChk(prefix)
+  var words = []
+  for (var i = 0; i < wordChars.length; ++i) {
+    var c = wordChars.charAt(i)
+    var v = ALPHABET_MAP[c]
     if (v === undefined) throw new Error('Unknown character ' + c)
     chk = polymodStep(chk) ^ v
 
@@ -103,12 +103,12 @@ function decode (str, LIMIT) {
 }
 
 function convert (data, inBits, outBits, pad) {
-  let value = 0
-  let bits = 0
-  let maxV = (1 << outBits) - 1
+  var value = 0
+  var bits = 0
+  var maxV = (1 << outBits) - 1
 
-  let result = []
-  for (let i = 0; i < data.length; ++i) {
+  var result = []
+  for (var i = 0; i < data.length; ++i) {
     value = (value << inBits) | data[i]
     bits += inBits
 
@@ -138,4 +138,9 @@ function fromWords (words) {
   return convert(words, 5, 8, false)
 }
 
-module.exports = { decode, encode, toWords, fromWords }
+module.exports = {
+  decode: decode,
+  encode: encode,
+  toWords: toWords,
+  fromWords: fromWords
+}
