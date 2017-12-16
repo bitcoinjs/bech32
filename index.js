@@ -99,7 +99,7 @@ function decode (str, LIMIT) {
   }
 
   if (chk !== 1) throw new Error('Invalid checksum for ' + str)
-  return { prefix, words }
+  return { prefix: prefix, words: words }
 }
 
 function convert (data, inBits, outBits, pad) {
