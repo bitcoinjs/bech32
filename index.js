@@ -79,6 +79,7 @@ function decode (str, LIMIT) {
   str = lowered
 
   var split = str.lastIndexOf('1')
+  if (split === -1) throw new Error('No separator character for ' + str)
   if (split === 0) throw new Error('Missing prefix for ' + str)
 
   var prefix = str.slice(0, split)

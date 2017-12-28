@@ -78,7 +78,11 @@
       },
       {
         "string": "pzry9x0s0muk",
-        "exception": "Invalid checksum for pzry9x0s0muk"
+        "exception": "No separator character for pzry9x0s0muk"
+      },
+      {
+        "string": "1pzry9x0s0muk",
+        "exception": "Missing prefix for 1pzry9x0s0muk"
       },
       {
         "string": "abc1rzgt4",
