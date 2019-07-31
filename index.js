@@ -24,7 +24,7 @@ function prefixChk (prefix) {
   var chk = 1
   for (var i = 0; i < prefix.length; ++i) {
     var c = prefix.charCodeAt(i)
-    if (c < 33 || c > 126) throw new Error('Invalid prefix (' + prefix + ')')
+    if (c < 33 || c > 126) return 'Invalid prefix (' + prefix + ')'
 
     chk = polymodStep(chk) ^ (c >> 5)
   }
@@ -45,6 +45,8 @@ function encode (prefix, words, LIMIT) {
 
   // determine chk mod
   var chk = prefixChk(prefix)
+  if (typeof chk === 'string') throw new Error(chk)
+
   var result = prefix + '1'
   for (var i = 0; i < words.length; ++i) {
     var x = words[i]
@@ -67,31 +69,33 @@ function encode (prefix, words, LIMIT) {
   return result
 }
 
-function decode (str, LIMIT) {
+function __decode (str, LIMIT) {
   LIMIT = LIMIT || 90
-  if (str.length < 8) throw new TypeError(str + ' too short')
-  if (str.length > LIMIT) throw new TypeError('Exceeds length limit')
+  if (str.length < 8) return str + ' too short'
+  if (str.length > LIMIT) return 'Exceeds length limit'
 
   // don't allow mixed case
   var lowered = str.toLowerCase()
   var uppered = str.toUpperCase()
-  if (str !== lowered && str !== uppered) throw new Error('Mixed-case string ' + str)
+  if (str !== lowered && str !== uppered) return 'Mixed-case string ' + str
   str = lowered
 
   var split = str.lastIndexOf('1')
-  if (split === -1) throw new Error('No separator character for ' + str)
-  if (split === 0) throw new Error('Missing prefix for ' + str)
+  if (split === -1) return 'No separator character for ' + str
+  if (split === 0) return 'Missing prefix for ' + str
 
   var prefix = str.slice(0, split)
   var wordChars = str.slice(split + 1)
-  if (wordChars.length < 6) throw new Error('Data too short')
+  if (wordChars.length < 6) return 'Data too short'
 
   var chk = prefixChk(prefix)
+  if (typeof chk === 'string') return chk
+
   var words = []
   for (var i = 0; i < wordChars.length; ++i) {
     var c = wordChars.charAt(i)
     var v = ALPHABET_MAP[c]
-    if (v === undefined) throw new Error('Unknown character ' + c)
+    if (v === undefined) return 'Unknown character ' + c
     chk = polymodStep(chk) ^ v
 
     // not in the checksum?
@@ -99,8 +103,20 @@ function decode (str, LIMIT) {
     words.push(v)
   }
 
-  if (chk !== 1) throw new Error('Invalid checksum for ' + str)
+  if (chk !== 1) return 'Invalid checksum for ' + str
   return { prefix: prefix, words: words }
+}
+
+function decodeUnsafe () {
+  var res = __decode.apply(null, arguments)
+  if (typeof res === 'object') return res
+}
+
+function decode (str) {
+  var res = __decode.apply(null, arguments)
+  if (typeof res === 'object') return res
+
+  throw new Error(res)
 }
 
 function convert (data, inBits, outBits, pad) {
@@ -124,24 +140,43 @@ function convert (data, inBits, outBits, pad) {
       result.push((value << (outBits - bits)) & maxV)
     }
   } else {
-    if (bits >= inBits) throw new Error('Excess padding')
-    if ((value << (outBits - bits)) & maxV) throw new Error('Non-zero padding')
+    if (bits >= inBits) return 'Excess padding'
+    if ((value << (outBits - bits)) & maxV) return 'Non-zero padding'
   }
 
   return result
 }
 
+function toWordsUnsafe (bytes) {
+  var res = convert(bytes, 8, 5, true)
+  if (Array.isArray(res)) return res
+}
+
 function toWords (bytes) {
-  return convert(bytes, 8, 5, true)
+  var res = convert(bytes, 8, 5, true)
+  if (Array.isArray(res)) return res
+
+  throw new Error(res)
+}
+
+function fromWordsUnsafe (words) {
+  var res = convert(words, 5, 8, false)
+  if (Array.isArray(res)) return res
 }
 
 function fromWords (words) {
-  return convert(words, 5, 8, false)
+  var res = convert(words, 5, 8, false)
+  if (Array.isArray(res)) return res
+
+  throw new Error(res)
 }
 
 module.exports = {
+  decodeUnsafe: decodeUnsafe,
   decode: decode,
   encode: encode,
+  toWordsUnsafe: toWordsUnsafe,
   toWords: toWords,
+  fromWordsUnsafe: fromWordsUnsafe,
   fromWords: fromWords
 }
