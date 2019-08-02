@@ -8,7 +8,7 @@ export function decode(str: string, limit?: number): { prefix: string, words: nu
  * Takes a human readable part ("prefix") and a list of character positions in the
  * bech32 alphabet ("words") and returns a bech32 encoded string.
  */
-export function encode(prefix: string, words: Buffer, limit?: number): string;
+export function encode(prefix: string, words: number[], limit?: number): string;
 
 /**
  * Converts a list of character positions in the bech32 alphabet ("words")
