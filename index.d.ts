@@ -1,6 +1,8 @@
 /**
  * Takes a bech32 encoded string and returns the human readable part ("prefix") and
  * a list of character positions in the bech32 alphabet ("words").
+ *
+ * @throws Throws on error
  */
 export function decode(str: string, limit?: number): { prefix: string, words: number[] };
 
@@ -20,6 +22,8 @@ export function encode(prefix: string, words: number[], limit?: number): string;
  * const a = new Uint8Array(fromWords(words));
  * const b = Buffer.from(fromWords(words));
  * ```
+ *
+ * @throws Throws on error
  */
 export function fromWords(words: number[]): number[];
 
@@ -32,5 +36,7 @@ export function fromWords(words: number[]): number[];
  * const a = toWords(new Uint8Array([0x00, 0x11, 0x22]));
  * const b = toWords(Buffer.from("001122", "hex"));
  * ```
+ *
+ * @throws Throws on error
  */
 export function toWords(bytes: ArrayLike<number>): number[];
