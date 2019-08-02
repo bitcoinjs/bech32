@@ -30,6 +30,19 @@ function decodeBuffer(address: string): { readonly prefix: string; readonly data
   };
 }
 
+function encodeUnsafe(prefix: string, data: Uint8Array): string | undefined {
+  const address = bech32.encode(prefix, bech32.toWordsUnsafe(data));
+  return address;
+}
+
+function decodeUnsafe(address: string): { readonly prefix: string; readonly data: Uint8Array } {
+  const decodedAddress = bech32.decodeUnsafe(address);
+  return {
+    prefix: decodedAddress.prefix,
+    data: new Uint8Array(bech32.fromWordsUnsafe(decodedAddress.words)),
+  };
+}
+
 function main(): void {
   {
     const prefix = "foo";
@@ -43,6 +56,13 @@ function main(): void {
     const data = Buffer.from([0x00, 0x11, 0x22]);
     const address = encodeBuffer(prefix, data);
     const decoded = decodeBuffer(address);
+    console.log(prefix, data, address, decoded);
+  }
+  {
+    const prefix = "foo";
+    const data = new Uint8Array([0x00, 0x11, 0x22]);
+    const address = encodeUnsafe(prefix, data);
+    const decoded = decodeUnsafe(address);
     console.log(prefix, data, address, decoded);
   }
 }
