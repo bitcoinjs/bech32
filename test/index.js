@@ -75,3 +75,27 @@ fixtures.fromWords.invalid.forEach((f) => {
     }, new RegExp(f.exception))
   })
 })
+
+tape(`toWords/toWordsUnsafe accept bytes as ArrayLike<number>`, (t) => {
+  // Ensures that only the two operations from
+  //   interface ArrayLike<T> {
+  //     readonly length: number;
+  //     readonly [n: number]: T;
+  //   }
+  // are used, which are common for the typical binary types Uint8Array, Buffer and
+  // Array<number>.
+
+  const bytes = {
+    length: 5,
+    0: 0x00,
+    1: 0x11,
+    2: 0x22,
+    3: 0x33,
+    4: 0xff
+  }
+  const words1 = bech32.toWords(bytes)
+  const words2 = bech32.toWordsUnsafe(bytes)
+  t.plan(2)
+  t.same(words1, [0, 0, 8, 18, 4, 12, 31, 31])
+  t.same(words2, [0, 0, 8, 18, 4, 12, 31, 31])
+})
