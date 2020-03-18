@@ -21,10 +21,10 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "nyc": "^10.2.0",
-    "standard": "*",
-    "tape": "^4.6.3",
-    "tap-dot": "*"
+    "nyc": "^15.0.0",
+    "standard": "^14.3.3",
+    "tap-dot": "*",
+    "tape": "^4.13.2"
   },
   "repository": {
     "url": "http://github.com/bitcoinjs/bech32",
