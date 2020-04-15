@@ -1,15 +1,15 @@
 sudo: false
 language: node_js
 node_js:
-  - "4"
-  - "5"
-  - "6"
-  - "7"
+  - "10"
+  - "11"
+  - "13"
+  - "lts/*"
 matrix:
   include:
-    - node_js: "7"
+    - node_js: "lts/*"
       env: TEST_SUITE=standard
-    - node_js: "7"
+    - node_js: "lts/*"
       env: TEST_SUITE=coverage
 env:
   - TEST_SUITE=test
