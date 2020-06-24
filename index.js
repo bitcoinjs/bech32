@@ -8,7 +8,7 @@ const ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
 const ALPHABET_MAP = [...ALPHABET].reduce((res, el, i) => ({ ...res, [el]: i }), {});
 const GENERATORS = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
 function polymodStep(pre) {
-    var b = pre >> 25;
+    const b = pre >> 25;
     let res = (pre & 0x1ffffff) << 5;
     for (let i = 0; i < GENERATORS.length; i++)
         res ^= -((b >> i) & 1) & GENERATORS[i];
@@ -62,10 +62,10 @@ function decode(str, LIMIT = BECH32_MAX_LIMIT) {
     let prefix = str.slice(0, split);
     let dataChars = str.slice(split + 1);
     if (dataChars.length < 6)
-        throw new Error('Invalid hash length');
+        throw new Error('Data too short');
     let chk = prefixChk(prefix), data = [];
     for (let i = 0; i < dataChars.length; i++) {
-        var v = ALPHABET_MAP[dataChars[i]];
+        const v = ALPHABET_MAP[dataChars[i]];
         if (v === undefined)
             throw new Error('Invalid char inside hash');
         chk = polymodStep(chk) ^ v;

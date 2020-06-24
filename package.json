@@ -33,6 +33,7 @@
     "type": "git"
   },
   "scripts": {
+    "build": "tsc -d",
     "coverage": "nyc --check-coverage --branches 90 --functions 90 tape test/*.js",
     "standard": "standard",
     "test": "tape test/*.js | tap-dot"

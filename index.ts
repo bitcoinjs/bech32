@@ -12,7 +12,7 @@ const ALPHABET_MAP: { [key: string]: number } = [...ALPHABET].reduce(
 const GENERATORS = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
 
 function polymodStep(pre: number): number {
-  var b = pre >> 25;
+  const b = pre >> 25;
   let res = (pre & 0x1ffffff) << 5;
   for (let i = 0; i < GENERATORS.length; i++) res ^= -((b >> i) & 1) & GENERATORS[i];
   return res;
@@ -49,7 +49,7 @@ export function encode(prefix: string, data: Uint8Array, LIMIT: number | null = 
   return result;
 }
 
-type Decoded = {prefix: string, words: Uint8Array};
+type Decoded = { prefix: string; words: Uint8Array };
 export function decode(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): Decoded {
   if (str.length < BECH32_MIN_LIMIT || (LIMIT !== null && str.length > LIMIT))
     throw new Error('Invalid hash length');
@@ -70,7 +70,7 @@ export function decode(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): De
   let chk = prefixChk(prefix),
     data = [];
   for (let i = 0; i < dataChars.length; i++) {
-    var v = ALPHABET_MAP[dataChars[i]];
+    const v = ALPHABET_MAP[dataChars[i]];
     if (v === undefined) throw new Error('Invalid char inside hash');
     chk = polymodStep(chk) ^ v;
     // not in the checksum?
@@ -79,8 +79,7 @@ export function decode(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): De
   }
   if (chk !== 1) throw new Error('Invalid checksum');
   const words = new Uint8Array(data);
-  return {prefix, words}
-  //return [prefix, new Uint8Array(data)];
+  return { prefix, words };
 }
 
 function convertBits(
@@ -128,11 +127,8 @@ export function encodeBase32(
   return encode(prefix, toWords(data), LIMIT);
 }
 
-export function decodeBase32(
-  str: string,
-  LIMIT: number | null = BECH32_MAX_LIMIT
-): Decoded {
-  let {prefix, words} = decode(str, LIMIT);
+export function decodeBase32(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): Decoded {
+  let { prefix, words } = decode(str, LIMIT);
   const data = fromWords(words);
-  return {prefix, words: data};
+  return { prefix, words: data };
 }
