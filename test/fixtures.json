@@ -86,7 +86,7 @@
       },
       {
         "string": "abc1rzgt4",
-        "exception": "Invalid hash length"
+        "exception": "Data too short"
       },
       {
         "string": "s1vcsyn",
@@ -124,7 +124,7 @@
       },
       {
         "string": "li1dgmt3",
-        "exception": "Invalid hash length"
+        "exception": "Data too short"
       },
       {
         "stringHex": "6465316c67377774ff",
