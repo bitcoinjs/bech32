@@ -10,6 +10,8 @@ matrix:
     - node_js: "lts/*"
       env: TEST_SUITE=standard
     - node_js: "lts/*"
+      env: TEST_SUITE=gitdiff:ci
+    - node_js: "lts/*"
       env: TEST_SUITE=coverage
 env:
   - TEST_SUITE=test
