@@ -45,8 +45,9 @@ fixtures.bech32.valid.forEach((f) => {
 fixtures.bech32.invalid.forEach((f) => {
   if (f.prefix !== undefined && f.words !== undefined) {
     tape(`encode fails with (${f.exception})`, (t) => {
-      t.plan(1)
+      t.plan(2)
 
+      t.equals(bech32.encodeUnsafe(f.prefix, f.words), undefined);
       t.throws(function () {
         bech32.encode(f.prefix, f.words)
       }, new RegExp(f.exception))
@@ -98,3 +99,15 @@ tape(`toWords/toWordsUnsafe accept bytes as ArrayLike<number>`, (t) => {
   t.same(words1, [0, 0, 8, 18, 4, 12, 31, 31])
   //t.same(words2, [0, 0, 8, 18, 4, 12, 31, 31])
 })
+
+tape(`encodeBase32`, (t) => {
+  t.plan(1);
+  const res = bech32.encodeBase32('be', new Uint8Array([1, 2, 3]));
+  t.equals(res, 'be1qypqx5sand0');
+});
+
+tape(`decodeBase32`, (t) => {
+  t.plan(1);
+  const res = bech32.decodeBase32('be1qypqx5sand0');
+  t.deepEquals(res, {prefix: 'be', words: new Uint8Array([1, 2, 3])});
+});
