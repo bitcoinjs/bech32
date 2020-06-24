@@ -8,7 +8,7 @@ node_js:
 matrix:
   include:
     - node_js: "lts/*"
-      env: TEST_SUITE=prettier
+      env: TEST_SUITE=lint
     - node_js: "lts/*"
       env: TEST_SUITE=gitdiff:ci
     - node_js: "lts/*"
