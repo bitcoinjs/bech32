@@ -39,7 +39,7 @@ export function encode(prefix: string, data: Uint8Array, LIMIT: number | null = 
   let result = prefix + BECH32_SEPARATOR;
 
   for (let x of data) {
-    if (x >> 5 !== 0) throw new Error('Not 5-bit byte');
+    if (x >> 5 !== 0) throw new Error('Not 5-bit word');
     chk = polymodStep(chk) ^ x;
     result += ALPHABET[x];
   }
@@ -47,6 +47,18 @@ export function encode(prefix: string, data: Uint8Array, LIMIT: number | null = 
   chk ^= 1;
   for (let i = 0; i < 6; i++) result += ALPHABET[(chk >> ((5 - i) * 5)) & 0x1f];
   return result;
+}
+
+export function encodeUnsafe(
+  prefix: string,
+  data: Uint8Array,
+  LIMIT: number | null = BECH32_MAX_LIMIT
+) {
+  try {
+    return encode(prefix, data, LIMIT);
+  } catch (error) {
+    return;
+  }
 }
 
 type Decoded = { prefix: string; words: Uint8Array };
@@ -82,6 +94,14 @@ export function decode(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): De
   return { prefix, words };
 }
 
+export function decodeUnsafe(str: string, LIMIT: number | null = BECH32_MAX_LIMIT) {
+  try {
+    return decode(str, LIMIT);
+  } catch (error) {
+    return;
+  }
+}
+
 function convertBits(
   data: Uint8Array,
   fromBits: number,
@@ -115,6 +135,7 @@ export function toWords(bytes: Uint8Array): Uint8Array {
   if (!(bytes instanceof Uint8Array)) bytes = Uint8Array.from(bytes);
   return convertBits(bytes, 8, 5, true);
 }
+
 export function fromWords(words: Uint8Array): Uint8Array {
   return convertBits(words, 5, 8, false);
 }

@@ -20,7 +20,9 @@
     "index.d.ts"
   ],
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "prettier": "^2.0.5"
+  },
   "devDependencies": {
     "nyc": "^15.0.0",
     "standard": "^14.3.3",
@@ -34,6 +36,7 @@
   },
   "scripts": {
     "build": "tsc -d",
+    "lint": "prettier --print-width 100 --single-quote --check index.ts",
     "coverage": "nyc --check-coverage --branches 90 --functions 90 tape test/*.js",
     "standard": "standard",
     "test": "tape test/*.js | tap-dot"

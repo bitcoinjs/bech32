@@ -1,6 +1,6 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.decodeBase32 = exports.encodeBase32 = exports.fromWords = exports.toWords = exports.decode = exports.encode = void 0;
+exports.decodeBase32 = exports.encodeBase32 = exports.fromWords = exports.toWords = exports.decodeUnsafe = exports.decode = exports.encodeUnsafe = exports.encode = void 0;
 const BECH32_SEPARATOR = '1';
 const BECH32_MAX_LIMIT = 90;
 const BECH32_MIN_LIMIT = 8;
@@ -35,7 +35,7 @@ function encode(prefix, data, LIMIT = BECH32_MAX_LIMIT) {
     let result = prefix + BECH32_SEPARATOR;
     for (let x of data) {
         if (x >> 5 !== 0)
-            throw new Error('Not 5-bit byte');
+            throw new Error('Not 5-bit word');
         chk = polymodStep(chk) ^ x;
         result += ALPHABET[x];
     }
@@ -47,6 +47,15 @@ function encode(prefix, data, LIMIT = BECH32_MAX_LIMIT) {
     return result;
 }
 exports.encode = encode;
+function encodeUnsafe(prefix, data, LIMIT = BECH32_MAX_LIMIT) {
+    try {
+        return encode(prefix, data, LIMIT);
+    }
+    catch (error) {
+        return;
+    }
+}
+exports.encodeUnsafe = encodeUnsafe;
 function decode(str, LIMIT = BECH32_MAX_LIMIT) {
     if (str.length < BECH32_MIN_LIMIT || (LIMIT !== null && str.length > LIMIT))
         throw new Error('Invalid hash length');
@@ -79,6 +88,15 @@ function decode(str, LIMIT = BECH32_MAX_LIMIT) {
     return { prefix, words };
 }
 exports.decode = decode;
+function decodeUnsafe(str, LIMIT = BECH32_MAX_LIMIT) {
+    try {
+        return decode(str, LIMIT);
+    }
+    catch (error) {
+        return;
+    }
+}
+exports.decodeUnsafe = decodeUnsafe;
 function convertBits(data, fromBits, toBits, padding) {
     let value = 0, bits = 0, maxV = (1 << toBits) - 1, res = [];
     for (let d of data) {

@@ -95,7 +95,7 @@
       {
         "prefix": "abc",
         "words": [128],
-        "exception": "Not 5-bit byte"
+        "exception": "Not 5-bit word"
       },
       {
         "prefix": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzfoobarfoobar",
