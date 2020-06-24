@@ -1,182 +1,123 @@
-'use strict'
-var ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
-
-// pre-compute lookup table
-var ALPHABET_MAP = {}
-for (var z = 0; z < ALPHABET.length; z++) {
-  var x = ALPHABET.charAt(z)
-
-  if (ALPHABET_MAP[x] !== undefined) throw new TypeError(x + ' is ambiguous')
-  ALPHABET_MAP[x] = z
+'use strict';
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.decodeBase32 = exports.encodeBase32 = exports.fromWords = exports.toWords = exports.decode = exports.encode = void 0;
+const BECH32_SEPARATOR = '1';
+const BECH32_MAX_LIMIT = 90;
+const BECH32_MIN_LIMIT = 8;
+const ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+const ALPHABET_MAP = [...ALPHABET].reduce((res, el, i) => ({ ...res, [el]: i }), {});
+const GENERATORS = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+function polymodStep(pre) {
+    var b = pre >> 25;
+    let res = (pre & 0x1ffffff) << 5;
+    for (let i = 0; i < GENERATORS.length; i++)
+        res ^= -((b >> i) & 1) & GENERATORS[i];
+    return res;
 }
-
-function polymodStep (pre) {
-  var b = pre >> 25
-  return ((pre & 0x1FFFFFF) << 5) ^
-    (-((b >> 0) & 1) & 0x3b6a57b2) ^
-    (-((b >> 1) & 1) & 0x26508e6d) ^
-    (-((b >> 2) & 1) & 0x1ea119fa) ^
-    (-((b >> 3) & 1) & 0x3d4233dd) ^
-    (-((b >> 4) & 1) & 0x2a1462b3)
-}
-
-function prefixChk (prefix) {
-  var chk = 1
-  for (var i = 0; i < prefix.length; ++i) {
-    var c = prefix.charCodeAt(i)
-    if (c < 33 || c > 126) return 'Invalid prefix (' + prefix + ')'
-
-    chk = polymodStep(chk) ^ (c >> 5)
-  }
-  chk = polymodStep(chk)
-
-  for (i = 0; i < prefix.length; ++i) {
-    var v = prefix.charCodeAt(i)
-    chk = polymodStep(chk) ^ (v & 0x1f)
-  }
-  return chk
-}
-
-function encode (prefix, words, LIMIT) {
-  LIMIT = LIMIT || 90
-  if ((prefix.length + 7 + words.length) > LIMIT) throw new TypeError('Exceeds length limit')
-
-  prefix = prefix.toLowerCase()
-
-  // determine chk mod
-  var chk = prefixChk(prefix)
-  if (typeof chk === 'string') throw new Error(chk)
-
-  var result = prefix + '1'
-  for (var i = 0; i < words.length; ++i) {
-    var x = words[i]
-    if ((x >> 5) !== 0) throw new Error('Non 5-bit word')
-
-    chk = polymodStep(chk) ^ x
-    result += ALPHABET.charAt(x)
-  }
-
-  for (i = 0; i < 6; ++i) {
-    chk = polymodStep(chk)
-  }
-  chk ^= 1
-
-  for (i = 0; i < 6; ++i) {
-    var v = (chk >> ((5 - i) * 5)) & 0x1f
-    result += ALPHABET.charAt(v)
-  }
-
-  return result
-}
-
-function __decode (str, LIMIT) {
-  LIMIT = LIMIT || 90
-  if (str.length < 8) return str + ' too short'
-  if (str.length > LIMIT) return 'Exceeds length limit'
-
-  // don't allow mixed case
-  var lowered = str.toLowerCase()
-  var uppered = str.toUpperCase()
-  if (str !== lowered && str !== uppered) return 'Mixed-case string ' + str
-  str = lowered
-
-  var split = str.lastIndexOf('1')
-  if (split === -1) return 'No separator character for ' + str
-  if (split === 0) return 'Missing prefix for ' + str
-
-  var prefix = str.slice(0, split)
-  var wordChars = str.slice(split + 1)
-  if (wordChars.length < 6) return 'Data too short'
-
-  var chk = prefixChk(prefix)
-  if (typeof chk === 'string') return chk
-
-  var words = []
-  for (var i = 0; i < wordChars.length; ++i) {
-    var c = wordChars.charAt(i)
-    var v = ALPHABET_MAP[c]
-    if (v === undefined) return 'Unknown character ' + c
-    chk = polymodStep(chk) ^ v
-
-    // not in the checksum?
-    if (i + 6 >= wordChars.length) continue
-    words.push(v)
-  }
-
-  if (chk !== 1) return 'Invalid checksum for ' + str
-  return { prefix: prefix, words: words }
-}
-
-function decodeUnsafe () {
-  var res = __decode.apply(null, arguments)
-  if (typeof res === 'object') return res
-}
-
-function decode (str) {
-  var res = __decode.apply(null, arguments)
-  if (typeof res === 'object') return res
-
-  throw new Error(res)
-}
-
-function convert (data, inBits, outBits, pad) {
-  var value = 0
-  var bits = 0
-  var maxV = (1 << outBits) - 1
-
-  var result = []
-  for (var i = 0; i < data.length; ++i) {
-    value = (value << inBits) | data[i]
-    bits += inBits
-
-    while (bits >= outBits) {
-      bits -= outBits
-      result.push((value >> bits) & maxV)
+function prefixChk(prefix) {
+    let chk = 1;
+    for (let char of prefix) {
+        let code = char.charCodeAt(0);
+        if (code < 33 || code > 126)
+            throw new Error('Invalid prefix');
+        chk = polymodStep(chk) ^ (code >> 5);
     }
-  }
-
-  if (pad) {
-    if (bits > 0) {
-      result.push((value << (outBits - bits)) & maxV)
+    chk = polymodStep(chk);
+    for (let char of prefix)
+        chk = polymodStep(chk) ^ (char.charCodeAt(0) & 0x1f);
+    return chk;
+}
+function encode(prefix, data, LIMIT = BECH32_MAX_LIMIT) {
+    if (LIMIT !== null && prefix.length + 7 + data.length > LIMIT)
+        throw new TypeError('Exceeds length limit');
+    prefix = prefix.toLowerCase();
+    let chk = prefixChk(prefix);
+    let result = prefix + BECH32_SEPARATOR;
+    for (let x of data) {
+        if (x >> 5 !== 0)
+            throw new Error('Not 5-bit byte');
+        chk = polymodStep(chk) ^ x;
+        result += ALPHABET[x];
     }
-  } else {
-    if (bits >= inBits) return 'Excess padding'
-    if ((value << (outBits - bits)) & maxV) return 'Non-zero padding'
-  }
-
-  return result
+    for (let i = 0; i < 6; i++)
+        chk = polymodStep(chk);
+    chk ^= 1;
+    for (let i = 0; i < 6; i++)
+        result += ALPHABET[(chk >> ((5 - i) * 5)) & 0x1f];
+    return result;
 }
-
-function toWordsUnsafe (bytes) {
-  var res = convert(bytes, 8, 5, true)
-  if (Array.isArray(res)) return res
+exports.encode = encode;
+function decode(str, LIMIT = BECH32_MAX_LIMIT) {
+    if (str.length < BECH32_MIN_LIMIT || (LIMIT !== null && str.length > LIMIT))
+        throw new Error('Invalid hash length');
+    let lowered = str.toLowerCase(), uppered = str.toUpperCase();
+    if (str !== lowered && str !== uppered)
+        throw new Error('Mixed-case hash');
+    str = lowered;
+    let split = str.lastIndexOf(BECH32_SEPARATOR);
+    if (split === -1)
+        throw new Error('No separator character');
+    if (split === 0)
+        throw new Error('Missing prefix');
+    let prefix = str.slice(0, split);
+    let dataChars = str.slice(split + 1);
+    if (dataChars.length < 6)
+        throw new Error('Invalid hash length');
+    let chk = prefixChk(prefix), data = [];
+    for (let i = 0; i < dataChars.length; i++) {
+        var v = ALPHABET_MAP[dataChars[i]];
+        if (v === undefined)
+            throw new Error('Invalid char inside hash');
+        chk = polymodStep(chk) ^ v;
+        if (i + 6 >= dataChars.length)
+            continue;
+        data.push(v);
+    }
+    if (chk !== 1)
+        throw new Error('Invalid checksum');
+    const words = new Uint8Array(data);
+    return { prefix, words };
 }
-
-function toWords (bytes) {
-  var res = convert(bytes, 8, 5, true)
-  if (Array.isArray(res)) return res
-
-  throw new Error(res)
+exports.decode = decode;
+function convertBits(data, fromBits, toBits, padding) {
+    let value = 0, bits = 0, maxV = (1 << toBits) - 1, res = [];
+    for (let d of data) {
+        value = (value << fromBits) | d;
+        bits += fromBits;
+        while (bits >= toBits) {
+            bits -= toBits;
+            res.push((value >> bits) & maxV);
+        }
+    }
+    if (padding) {
+        if (bits > 0)
+            res.push((value << (toBits - bits)) & maxV);
+    }
+    else {
+        if (bits >= fromBits)
+            throw new Error('Excess padding');
+        if ((value << (toBits - bits)) & maxV)
+            throw new Error('Non-zero padding');
+    }
+    return new Uint8Array(res);
 }
-
-function fromWordsUnsafe (words) {
-  var res = convert(words, 5, 8, false)
-  if (Array.isArray(res)) return res
+function toWords(bytes) {
+    if (!(bytes instanceof Uint8Array))
+        bytes = Uint8Array.from(bytes);
+    return convertBits(bytes, 8, 5, true);
 }
-
-function fromWords (words) {
-  var res = convert(words, 5, 8, false)
-  if (Array.isArray(res)) return res
-
-  throw new Error(res)
+exports.toWords = toWords;
+function fromWords(words) {
+    return convertBits(words, 5, 8, false);
 }
-
-module.exports = {
-  decodeUnsafe: decodeUnsafe,
-  decode: decode,
-  encode: encode,
-  toWordsUnsafe: toWordsUnsafe,
-  toWords: toWords,
-  fromWordsUnsafe: fromWordsUnsafe,
-  fromWords: fromWords
+exports.fromWords = fromWords;
+function encodeBase32(prefix, data, LIMIT = BECH32_MAX_LIMIT) {
+    return encode(prefix, toWords(data), LIMIT);
 }
+exports.encodeBase32 = encodeBase32;
+function decodeBase32(str, LIMIT = BECH32_MAX_LIMIT) {
+    let { prefix, words } = decode(str, LIMIT);
+    const data = fromWords(words);
+    return { prefix, words: data };
+}
+exports.decodeBase32 = decodeBase32;

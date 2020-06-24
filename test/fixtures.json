@@ -54,48 +54,48 @@
     "invalid": [
       {
         "string": "A12Uel5l",
-        "exception": "Mixed-case string A12Uel5l"
+        "exception": "Mixed-case hash"
       },
       {
         "string": " 1nwldj5",
-        "exception": "Invalid prefix \\( \\)"
+        "exception": "Invalid prefix"
       },
       {
         "string": "abc1rzg",
-        "exception": "abc1rzg too short"
+        "exception": "Invalid hash length"
       },
       {
         "string": "an84characterslonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1569pvx",
-        "exception": "Exceeds length limit"
+        "exception": "Invalid hash length"
       },
       {
         "string": "x1b4n0q5v",
-        "exception": "Unknown character b"
+        "exception": "Invalid char inside hash"
       },
       {
         "string": "1pzry9x0s0muk",
-        "exception": "Missing prefix for 1pzry9x0s0muk"
+        "exception": "Missing prefix"
       },
       {
         "string": "pzry9x0s0muk",
-        "exception": "No separator character for pzry9x0s0muk"
+        "exception": "No separator character"
       },
       {
         "string": "1pzry9x0s0muk",
-        "exception": "Missing prefix for 1pzry9x0s0muk"
+        "exception": "Missing prefix"
       },
       {
         "string": "abc1rzgt4",
-        "exception": "Data too short"
+        "exception": "Invalid hash length"
       },
       {
         "string": "s1vcsyn",
-        "exception": "s1vcsyn too short"
+        "exception": "Invalid hash length"
       },
       {
         "prefix": "abc",
         "words": [128],
-        "exception": "Non 5-bit word"
+        "exception": "Not 5-bit byte"
       },
       {
         "prefix": "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzfoobarfoobar",
@@ -115,20 +115,20 @@
       },
       {
         "string": "11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqc8247j",
-        "exception": "Exceeds length limit"
+        "exception": "Invalid hash length"
       },
       {
         "prefix": "abc\u00ff",
         "words": [18],
-        "exception": "Invalid prefix \\(abc\u00ff\\)"
+        "exception": "Invalid prefix"
       },
       {
         "string": "li1dgmt3",
-        "exception": "Data too short"
+        "exception": "Invalid hash length"
       },
       {
         "stringHex": "6465316c67377774ff",
-        "exception": "Unknown character "
+        "exception": "Invalid char inside hash"
       }
     ]
   }

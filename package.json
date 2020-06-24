@@ -25,7 +25,8 @@
     "nyc": "^15.0.0",
     "standard": "^14.3.3",
     "tap-dot": "*",
-    "tape": "^4.13.2"
+    "tape": "^4.13.2",
+    "typescript": "^3.9.5"
   },
   "repository": {
     "url": "http://github.com/bitcoinjs/bech32",
