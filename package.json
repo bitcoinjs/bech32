@@ -27,7 +27,6 @@
   },
   "devDependencies": {
     "nyc": "^15.0.0",
-    "standard": "^14.3.3",
     "tap-dot": "*",
     "tape": "^4.13.2",
     "typescript": "^3.9.5"
@@ -41,7 +40,6 @@
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "lint": "prettier --print-width 100 --single-quote --check index.ts",
     "coverage": "nyc --check-coverage --branches 90 --functions 90 tape test/*.js",
-    "standard": "standard",
     "test": "tape test/*.js | tap-dot"
   }
 }
