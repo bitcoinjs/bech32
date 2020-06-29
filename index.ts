@@ -30,7 +30,7 @@ function prefixChk(prefix: string) {
   return chk;
 }
 
-export function encode(prefix: string, data: Uint8Array, LIMIT: number | null = BECH32_MAX_LIMIT) {
+export function encode(prefix: string, data: ArrayLike<number>, LIMIT: number = BECH32_MAX_LIMIT) {
   if (LIMIT !== null && prefix.length + 7 + data.length > LIMIT)
     throw new TypeError('Exceeds length limit');
   prefix = prefix.toLowerCase();
@@ -38,7 +38,8 @@ export function encode(prefix: string, data: Uint8Array, LIMIT: number | null = 
 
   let result = prefix + BECH32_SEPARATOR;
 
-  for (let x of data) {
+  for (let i = 0; i < data.length; i++) {
+    const x = data[i];
     if (x >> 5 !== 0) throw new Error('Not 5-bit word');
     chk = polymodStep(chk) ^ x;
     result += ALPHABET[x];
@@ -51,8 +52,8 @@ export function encode(prefix: string, data: Uint8Array, LIMIT: number | null = 
 
 export function encodeUnsafe(
   prefix: string,
-  data: Uint8Array,
-  LIMIT: number | null = BECH32_MAX_LIMIT
+  data: ArrayLike<number>,
+  LIMIT: number = BECH32_MAX_LIMIT
 ) {
   try {
     return encode(prefix, data, LIMIT);
@@ -61,8 +62,11 @@ export function encodeUnsafe(
   }
 }
 
-type Decoded = { prefix: string; words: Uint8Array };
-export function decode(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): Decoded {
+interface Decoded {
+  prefix: string;
+  words: number[];
+}
+export function decode(str: string, LIMIT: number = BECH32_MAX_LIMIT): Decoded {
   if (str.length < BECH32_MIN_LIMIT || (LIMIT !== null && str.length > LIMIT))
     throw new Error('Invalid hash length');
 
@@ -80,7 +84,7 @@ export function decode(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): De
   if (dataChars.length < 6) throw new Error('Data too short');
 
   let chk = prefixChk(prefix),
-    data = [];
+    data = [] as number[];
   for (let i = 0; i < dataChars.length; i++) {
     const v = ALPHABET_MAP[dataChars[i]];
     if (v === undefined) throw new Error('Invalid char inside hash');
@@ -90,11 +94,10 @@ export function decode(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): De
     data.push(v);
   }
   if (chk !== 1) throw new Error('Invalid checksum');
-  const words = new Uint8Array(data);
-  return { prefix, words };
+  return { prefix, words: data };
 }
 
-export function decodeUnsafe(str: string, LIMIT: number | null = BECH32_MAX_LIMIT) {
+export function decodeUnsafe(str: string, LIMIT: number = BECH32_MAX_LIMIT) {
   try {
     return decode(str, LIMIT);
   } catch (error) {
@@ -103,16 +106,17 @@ export function decodeUnsafe(str: string, LIMIT: number | null = BECH32_MAX_LIMI
 }
 
 function convertBits(
-  data: Uint8Array,
+  data: ArrayLike<number>,
   fromBits: number,
   toBits: number,
   padding: boolean
-): Uint8Array {
+): number[] {
   let value = 0,
     bits = 0,
     maxV = (1 << toBits) - 1,
-    res = [];
-  for (let d of data) {
+    res = [] as number[];
+  for (let i = 0; i < data.length; i++) {
+    const d = data[i];
     value = (value << fromBits) | d;
     bits += fromBits;
 
@@ -128,27 +132,22 @@ function convertBits(
     if (bits >= fromBits) throw new Error('Excess padding');
     if ((value << (toBits - bits)) & maxV) throw new Error('Non-zero padding');
   }
-  return new Uint8Array(res);
+  return res;
 }
 
-export function toWords(bytes: Uint8Array): Uint8Array {
-  if (!(bytes instanceof Uint8Array)) bytes = Uint8Array.from(bytes);
+export function toWords(bytes: ArrayLike<number>): number[] {
   return convertBits(bytes, 8, 5, true);
 }
 
-export function fromWords(words: Uint8Array): Uint8Array {
+export function fromWords(words: ArrayLike<number>): number[] {
   return convertBits(words, 5, 8, false);
 }
 
-export function encodeBase32(
-  prefix: string,
-  data: Uint8Array,
-  LIMIT: number | null = BECH32_MAX_LIMIT
-) {
+export function encodeBase32(prefix: string, data: Uint8Array, LIMIT: number = BECH32_MAX_LIMIT) {
   return encode(prefix, toWords(data), LIMIT);
 }
 
-export function decodeBase32(str: string, LIMIT: number | null = BECH32_MAX_LIMIT): Decoded {
+export function decodeBase32(str: string, LIMIT: number = BECH32_MAX_LIMIT): Decoded {
   let { prefix, words } = decode(str, LIMIT);
   const data = fromWords(words);
   return { prefix, words: data };

@@ -33,7 +33,8 @@ function encode(prefix, data, LIMIT = BECH32_MAX_LIMIT) {
     prefix = prefix.toLowerCase();
     let chk = prefixChk(prefix);
     let result = prefix + BECH32_SEPARATOR;
-    for (let x of data) {
+    for (let i = 0; i < data.length; i++) {
+        const x = data[i];
         if (x >> 5 !== 0)
             throw new Error('Not 5-bit word');
         chk = polymodStep(chk) ^ x;
@@ -84,8 +85,7 @@ function decode(str, LIMIT = BECH32_MAX_LIMIT) {
     }
     if (chk !== 1)
         throw new Error('Invalid checksum');
-    const words = new Uint8Array(data);
-    return { prefix, words };
+    return { prefix, words: data };
 }
 exports.decode = decode;
 function decodeUnsafe(str, LIMIT = BECH32_MAX_LIMIT) {
@@ -99,7 +99,8 @@ function decodeUnsafe(str, LIMIT = BECH32_MAX_LIMIT) {
 exports.decodeUnsafe = decodeUnsafe;
 function convertBits(data, fromBits, toBits, padding) {
     let value = 0, bits = 0, maxV = (1 << toBits) - 1, res = [];
-    for (let d of data) {
+    for (let i = 0; i < data.length; i++) {
+        const d = data[i];
         value = (value << fromBits) | d;
         bits += fromBits;
         while (bits >= toBits) {
@@ -117,11 +118,9 @@ function convertBits(data, fromBits, toBits, padding) {
         if ((value << (toBits - bits)) & maxV)
             throw new Error('Non-zero padding');
     }
-    return new Uint8Array(res);
+    return res;
 }
 function toWords(bytes) {
-    if (!(bytes instanceof Uint8Array))
-        bytes = Uint8Array.from(bytes);
     return convertBits(bytes, 8, 5, true);
 }
 exports.toWords = toWords;
