@@ -10,6 +10,21 @@ for (var z = 0; z < ALPHABET.length; z++) {
   ALPHABET_MAP[x] = z
 }
 
+var encodings = {
+  BECH32: 'bech32',
+  BECH32M: 'bech32m'
+}
+
+function getEncodingConst (encoding) {
+  if (encoding === encodings.BECH32) {
+    return 1
+  } else if (encoding === encodings.BECH32M) {
+    return 0x2bc830a3
+  } else {
+    return null
+  }
+}
+
 function polymodStep (pre) {
   var b = pre >> 25
   return ((pre & 0x1FFFFFF) << 5) ^
@@ -37,7 +52,7 @@ function prefixChk (prefix) {
   return chk
 }
 
-function encode (prefix, words, LIMIT) {
+function encode (prefix, words, encoding, LIMIT) {
   LIMIT = LIMIT || 90
   if ((prefix.length + 7 + words.length) > LIMIT) throw new TypeError('Exceeds length limit')
 
@@ -59,7 +74,7 @@ function encode (prefix, words, LIMIT) {
   for (i = 0; i < 6; ++i) {
     chk = polymodStep(chk)
   }
-  chk ^= 1
+  chk ^= getEncodingConst(encoding)
 
   for (i = 0; i < 6; ++i) {
     var v = (chk >> ((5 - i) * 5)) & 0x1f
@@ -69,7 +84,7 @@ function encode (prefix, words, LIMIT) {
   return result
 }
 
-function __decode (str, LIMIT) {
+function __decode (str, encoding, LIMIT) {
   LIMIT = LIMIT || 90
   if (str.length < 8) return str + ' too short'
   if (str.length > LIMIT) return 'Exceeds length limit'
@@ -103,7 +118,7 @@ function __decode (str, LIMIT) {
     words.push(v)
   }
 
-  if (chk !== 1) return 'Invalid checksum for ' + str
+  if (chk !== getEncodingConst(encoding)) return 'Invalid checksum for ' + str
   return { prefix: prefix, words: words }
 }
 
@@ -178,5 +193,6 @@ module.exports = {
   toWordsUnsafe: toWordsUnsafe,
   toWords: toWords,
   fromWordsUnsafe: fromWordsUnsafe,
-  fromWords: fromWords
+  fromWords: fromWords,
+  encodings: encodings
 }
