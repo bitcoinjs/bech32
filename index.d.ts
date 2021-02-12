@@ -1,10 +1,18 @@
 /**
+ * The encoding type to encode/decode
+ */
+export const enum Encoding {
+  BECH32 = 'bech32',
+  BECH32M = 'bech32m'
+}
+
+/**
  * Takes a bech32 encoded string and returns the human readable part ("prefix") and
  * a list of character positions in the bech32 alphabet ("words").
  *
  * @throws Throws on error
  */
-export function decode(str: string, limit?: number): { prefix: string, words: number[] };
+export function decode(str: string, encoding: Encoding, limit?: number): { prefix: string, words: number[] };
 
 /**
  * Takes a bech32 encoded string and returns the human readable part ("prefix") and
@@ -12,13 +20,13 @@ export function decode(str: string, limit?: number): { prefix: string, words: nu
  *
  * @returns undefined when there was an error
  */
-export function decodeUnsafe(str: string, limit?: number): ({ prefix: string, words: number[] }) | undefined;
+export function decodeUnsafe(str: string, encoding: Encoding, limit?: number): ({ prefix: string, words: number[] }) | undefined;
 
 /**
- * Takes a human readable part ("prefix") and a list of character positions in the
- * bech32 alphabet ("words") and returns a bech32 encoded string.
+ * Takes a human readable part ("prefix"), a list of character positions in the
+ * bech32 alphabet ("words") and the encoding type, and returns a bech32 encoded string.
  */
-export function encode(prefix: string, words: number[], limit?: number): string;
+export function encode(prefix: string, words: number[], encoding: Encoding, limit?: number): string;
 
 /**
  * Converts a list of character positions in the bech32 alphabet ("words")
