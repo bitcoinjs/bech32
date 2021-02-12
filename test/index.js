@@ -3,19 +3,21 @@ let tape = require('tape')
 let fixtures = require('./fixtures')
 let bech32 = require('../')
 
-fixtures.bech32.valid.forEach((f) => {
-  tape(`fromWords/toWords ${f.hex}`, (t) => {
-    t.plan(2)
+function testValidFixture (f, encoding) {
+  if (f.hex) {
+    tape(`fromWords/toWords ${f.hex}`, (t) => {
+      t.plan(2)
 
-    let words = bech32.toWords(Buffer.from(f.hex, 'hex'))
-    let bytes = Buffer.from(bech32.fromWords(f.words))
-    t.same(words, f.words)
-    t.same(bytes.toString('hex'), f.hex)
-  })
+      let words = bech32.toWords(Buffer.from(f.hex, 'hex'))
+      let bytes = Buffer.from(bech32.fromWords(f.words))
+      t.same(words, f.words)
+      t.same(bytes.toString('hex'), f.hex)
+    })
+  }
 
-  tape(`encode ${f.prefix} ${f.hex}`, (t) => {
+  tape(`encode ${f.prefix} ${f.hex || f.words}`, (t) => {
     t.plan(1)
-    t.strictEqual(bech32.encode(f.prefix, f.words, f.limit), f.string.toLowerCase())
+    t.strictEqual(bech32.encode(f.prefix, f.words, encoding, f.limit), f.string.toLowerCase())
   })
 
   tape(`decode ${f.string}`, (t) => {
@@ -25,8 +27,8 @@ fixtures.bech32.valid.forEach((f) => {
       prefix: f.prefix.toLowerCase(),
       words: f.words
     }
-    t.same(bech32.decodeUnsafe(f.string, f.limit), expected)
-    t.same(bech32.decode(f.string, f.limit), expected)
+    t.same(bech32.decodeUnsafe(f.string, encoding, f.limit), expected)
+    t.same(bech32.decode(f.string, encoding, f.limit), expected)
   })
 
   tape(`fails for ${f.string} with 1 bit flipped`, (t) => {
@@ -35,20 +37,30 @@ fixtures.bech32.valid.forEach((f) => {
     let buffer = Buffer.from(f.string, 'utf8')
     buffer[f.string.lastIndexOf('1') + 1] ^= 0x1 // flip a bit, after the prefix
     let string = buffer.toString('utf8')
-    t.equal(bech32.decodeUnsafe(string, f.limit), undefined)
+    t.equal(bech32.decodeUnsafe(string, encoding, f.limit), undefined)
     t.throws(function () {
-      bech32.decode(string, f.limit)
+      bech32.decode(string, encoding, f.limit)
     }, new RegExp('Invalid checksum|Unknown character'))
   })
-})
 
-fixtures.bech32.invalid.forEach((f) => {
+  const wrongEncoding = encoding === bech32.encodings.BECH32 ? bech32.encodings.BECH32M : bech32.encodings.BECH32
+  tape(`fails for ${f.string} with wrong encoding`, (t) => {
+    t.plan(2)
+
+    t.equal(bech32.decodeUnsafe(f.string, wrongEncoding, f.limit), undefined)
+    t.throws(function () {
+      bech32.decode(f.string, wrongEncoding, f.limit)
+    }, new RegExp('Invalid checksum'))
+  })
+}
+
+function testInvalidFixture (f, encoding) {
   if (f.prefix !== undefined && f.words !== undefined) {
     tape(`encode fails with (${f.exception})`, (t) => {
       t.plan(1)
 
       t.throws(function () {
-        bech32.encode(f.prefix, f.words)
+        bech32.encode(f.prefix, f.words, encoding)
       }, new RegExp(f.exception))
     })
   }
@@ -58,12 +70,28 @@ fixtures.bech32.invalid.forEach((f) => {
 
     tape(`decode fails for ${string} (${f.exception})`, (t) => {
       t.plan(2)
-      t.equal(bech32.decodeUnsafe(string), undefined)
+      t.equal(bech32.decodeUnsafe(string, encoding), undefined)
       t.throws(function () {
-        bech32.decode(string)
+        bech32.decode(string, encoding)
       }, new RegExp(f.exception))
     })
   }
+}
+
+fixtures.bech32.valid.forEach((f) => {
+  testValidFixture(f, bech32.encodings.BECH32)
+})
+
+fixtures.bech32.invalid.forEach((f) => {
+  testInvalidFixture(f, bech32.encodings.BECH32)
+})
+
+fixtures.bech32m.valid.forEach((f) => {
+  testValidFixture(f, bech32.encodings.BECH32M)
+})
+
+fixtures.bech32m.invalid.forEach((f) => {
+  testInvalidFixture(f, bech32.encodings.BECH32M)
 })
 
 fixtures.fromWords.invalid.forEach((f) => {
