@@ -2,22 +2,29 @@
 [![build status](https://secure.travis-ci.org/bitcoinjs/bech32.png)](http://travis-ci.org/bitcoinjs/bech32)
 [![Version](http://img.shields.io/npm/v/bech32.svg)](https://www.npmjs.org/package/bech32)
 
-A [BIP173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki) compatible Bech32 encoding/decoding library.
+A [BIP173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki)/[BIP350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki) compatible Bech32/Bech32m encoding/decoding library.
 
 
 ## Example
 ``` javascript
 let bech32 = require('bech32')
 
-bech32.decode('abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw')
+bech32.decode('abcdef1qpzry9x8gf2tvdw0s3jn54khce6mua7lmqqqxw', bech32.encodings.BECH32)
 // => {
 // 	 prefix: 'abcdef',
 // 	 words: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]
 // }
+bech32.decode('abcdef1l7aum6echk45nj3s0wdvt2fg8x9yrzpqzd3ryx', bech32.encodings.BECH32M)
+// => {
+// 	 prefix: 'abcdef',
+// 	 words: [31,30,29,28,27,26,25,24,23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+// }
 
 let words = bech32.toWords(Buffer.from('foobar', 'utf8'))
-bech32.encode('foo', words)
+bech32.encode('foo', words, bech32.encodings.BECH32)
 // => 'foo1vehk7cnpwgry9h96'
+bech32.encode('foo', words, bech32.encodings.BECH32M)
+// => 'foo1vehk7cnpwgkc4mqc'
 ```
 
 
@@ -28,7 +35,7 @@ It is highly recommended **NOT** exceed 1023 characters, as the module could onl
 
 
 ## Credits
-- [Peter Wuille](https://github.com/sipa/bech32) for the reference JavaScript implementation, and for authoring the Bech32 [BIP173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki).
+- [Peter Wuille](https://github.com/sipa/bech32) for the reference JavaScript implementation, and for authoring the Bech32 [BIP173](https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki) and Bech32m [BIP350](https://github.com/bitcoin/bips/blob/master/bip-0350.mediawiki).
 
 
 ## License [MIT](LICENSE)
