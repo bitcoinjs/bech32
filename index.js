@@ -54,6 +54,8 @@ function prefixChk (prefix) {
 
 function encode (prefix, words, encoding, LIMIT) {
   LIMIT = LIMIT || 90
+  const encodingConst = getEncodingConst(encoding)
+  if (encodingConst === null) throw new TypeError('Encoding must be either bech32 or bech32m')
   if ((prefix.length + 7 + words.length) > LIMIT) throw new TypeError('Exceeds length limit')
 
   prefix = prefix.toLowerCase()
@@ -74,7 +76,7 @@ function encode (prefix, words, encoding, LIMIT) {
   for (i = 0; i < 6; ++i) {
     chk = polymodStep(chk)
   }
-  chk ^= getEncodingConst(encoding)
+  chk ^= encodingConst
 
   for (i = 0; i < 6; ++i) {
     var v = (chk >> ((5 - i) * 5)) & 0x1f
@@ -88,6 +90,9 @@ function __decode (str, encoding, LIMIT) {
   LIMIT = LIMIT || 90
   if (str.length < 8) return str + ' too short'
   if (str.length > LIMIT) return 'Exceeds length limit'
+
+  const encodingConst = getEncodingConst(encoding)
+  if (encodingConst === null) throw new TypeError('Encoding must be either bech32 or bech32m')
 
   // don't allow mixed case
   var lowered = str.toLowerCase()
@@ -118,7 +123,7 @@ function __decode (str, encoding, LIMIT) {
     words.push(v)
   }
 
-  if (chk !== getEncodingConst(encoding)) return 'Invalid checksum for ' + str
+  if (chk !== encodingConst) return 'Invalid checksum for ' + str
   return { prefix: prefix, words: words }
 }
 
