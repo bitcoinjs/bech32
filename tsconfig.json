@@ -4,7 +4,6 @@
     "target": "es2015",
     "module": "commonjs",
     "noImplicitAny": true,
-    "removeComments": true,
     "preserveConstEnums": true
   },
   "include": ["./index.ts", "./test/index.ts"],

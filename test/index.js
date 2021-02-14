@@ -1,89 +1,113 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 const tape = require("tape");
-let fixtures = require('./fixtures');
-let bech32 = require('../');
-fixtures.bech32.valid.forEach((f) => {
-    tape(`fromWords/toWords ${f.hex}`, (t) => {
-        t.plan(2);
-        let words = bech32.toWords(Buffer.from(f.hex, 'hex'));
-        let bytes = Buffer.from(bech32.fromWords(f.words));
-        t.same(words, f.words);
-        t.same(bytes.toString('hex'), f.hex);
-    });
-    tape(`encode ${f.prefix} ${f.hex}`, (t) => {
+const fixtures = require('./fixtures');
+const bech32Lib = require('../');
+function testValidFixture(f, bech32) {
+    if (f.hex) {
+        tape(`fromWords/toWords ${f.hex}`, (t) => {
+            t.plan(3);
+            const words = bech32.toWords(Buffer.from(f.hex, 'hex'));
+            const bytes = Buffer.from(bech32.fromWords(f.words));
+            const bytes2 = Buffer.from(bech32.fromWordsUnsafe(f.words));
+            t.same(words, f.words);
+            t.same(bytes.toString('hex'), f.hex);
+            t.same(bytes2.toString('hex'), f.hex);
+        });
+    }
+    tape(`encode ${f.prefix} ${f.hex || f.words}`, (t) => {
         t.plan(1);
         t.strictEqual(bech32.encode(f.prefix, f.words, f.limit), f.string.toLowerCase());
     });
     tape(`decode ${f.string}`, (t) => {
         t.plan(2);
-        var expected = {
+        const expected = {
             prefix: f.prefix.toLowerCase(),
-            words: f.words
+            words: f.words,
         };
         t.same(bech32.decodeUnsafe(f.string, f.limit), expected);
         t.same(bech32.decode(f.string, f.limit), expected);
     });
     tape(`fails for ${f.string} with 1 bit flipped`, (t) => {
         t.plan(2);
-        let buffer = Buffer.from(f.string, 'utf8');
-        buffer[f.string.lastIndexOf('1') + 1] ^= 0x1;
-        let string = buffer.toString('utf8');
-        t.equal(bech32.decodeUnsafe(string, f.limit), undefined);
-        t.throws(function () {
-            bech32.decode(string, f.limit);
-        }, new RegExp('Invalid char|Invalid checksum|Unknown character'));
+        const buffer = Buffer.from(f.string, 'utf8');
+        buffer[f.string.lastIndexOf('1') + 1] ^= 0x1; // flip a bit, after the prefix
+        const str = buffer.toString('utf8');
+        t.equal(bech32.decodeUnsafe(str, f.limit), undefined);
+        t.throws(() => {
+            bech32.decode(str, f.limit);
+        }, new RegExp('Invalid checksum|Unknown character'));
     });
-});
-fixtures.bech32.invalid.forEach((f) => {
+    // === compare of objects compares reference in memory, so this works
+    const wrongBech32 = bech32 === bech32Lib.bech32 ? bech32Lib.bech32m : bech32Lib.bech32;
+    tape(`fails for ${f.string} with wrong encoding`, (t) => {
+        t.plan(2);
+        t.equal(wrongBech32.decodeUnsafe(f.string, f.limit), undefined);
+        t.throws(() => {
+            wrongBech32.decode(f.string, f.limit);
+        }, new RegExp('Invalid checksum'));
+    });
+}
+function testInvalidFixture(f, bech32) {
     if (f.prefix !== undefined && f.words !== undefined) {
         tape(`encode fails with (${f.exception})`, (t) => {
-            t.plan(2);
-            t.equals(bech32.encodeUnsafe(f.prefix, f.words), undefined);
-            t.throws(function () {
+            t.plan(1);
+            t.throws(() => {
                 bech32.encode(f.prefix, f.words);
             }, new RegExp(f.exception));
         });
     }
     if (f.string !== undefined || f.stringHex) {
-        let string = f.string || Buffer.from(f.stringHex, 'hex').toString('binary');
-        tape(`decode fails for ${string} (${f.exception})`, (t) => {
+        const str = f.string || Buffer.from(f.stringHex, 'hex').toString('binary');
+        tape(`decode fails for ${str} (${f.exception})`, (t) => {
             t.plan(2);
-            t.equal(bech32.decodeUnsafe(string), undefined);
-            t.throws(function () {
-                bech32.decode(string);
+            t.equal(bech32.decodeUnsafe(str), undefined);
+            t.throws(() => {
+                bech32.decode(str);
             }, new RegExp(f.exception));
         });
     }
+}
+fixtures.bech32.valid.forEach((f) => {
+    testValidFixture(f, bech32Lib.bech32);
+});
+fixtures.bech32.invalid.forEach((f) => {
+    testInvalidFixture(f, bech32Lib.bech32);
+});
+fixtures.bech32m.valid.forEach((f) => {
+    testValidFixture(f, bech32Lib.bech32m);
+});
+fixtures.bech32m.invalid.forEach((f) => {
+    testInvalidFixture(f, bech32Lib.bech32m);
 });
 fixtures.fromWords.invalid.forEach((f) => {
     tape(`fromWords fails with ${f.exception}`, (t) => {
-        t.plan(1);
-        t.throws(function () {
-            bech32.fromWords(f.words);
+        t.plan(2);
+        t.equal(bech32Lib.bech32.fromWordsUnsafe(f.words), undefined);
+        t.throws(() => {
+            bech32Lib.bech32.fromWords(f.words);
         }, new RegExp(f.exception));
     });
 });
-tape(`toWords/toWordsUnsafe accept bytes as ArrayLike<number>`, (t) => {
+tape('toWords/toWordsUnsafe accept bytes as ArrayLike<number>', (t) => {
+    // Ensures that only the two operations from
+    //   interface ArrayLike<T> {
+    //     readonly length: number;
+    //     readonly [n: number]: T;
+    //   }
+    // are used, which are common for the typical binary types Uint8Array, Buffer and
+    // Array<number>.
     const bytes = {
         length: 5,
         0: 0x00,
         1: 0x11,
         2: 0x22,
         3: 0x33,
-        4: 0xff
+        4: 0xff,
     };
-    const words1 = bech32.toWords(bytes);
-    t.plan(1);
+    const words1 = bech32Lib.bech32.toWords(bytes);
+    const words2 = bech32Lib.bech32.toWordsUnsafe(bytes);
+    t.plan(2);
     t.same(words1, [0, 0, 8, 18, 4, 12, 31, 31]);
-});
-tape(`encodeBase32`, (t) => {
-    t.plan(1);
-    const res = bech32.encodeBase32('be', new Uint8Array([1, 2, 3]));
-    t.equals(res, 'be1qypqx5sand0');
-});
-tape(`decodeBase32`, (t) => {
-    t.plan(1);
-    const res = bech32.decodeBase32('be1qypqx5sand0');
-    t.deepEquals(res, { prefix: 'be', words: new Uint8Array([1, 2, 3]) });
+    t.same(words2, [0, 0, 8, 18, 4, 12, 31, 31]);
 });
