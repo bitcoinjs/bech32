@@ -2,13 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.bech32m = exports.bech32 = void 0;
 const ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
-// pre-compute lookup table
 const ALPHABET_MAP = {};
 for (let z = 0; z < ALPHABET.length; z++) {
     const x = ALPHABET.charAt(z);
-    /* istanbul ignore if */
-    if (ALPHABET_MAP[x] !== undefined)
-        throw new TypeError(x + ' is ambiguous');
     ALPHABET_MAP[x] = z;
 }
 function polymodStep(pre) {
@@ -62,19 +58,10 @@ function convert(data, inBits, outBits, pad) {
     return result;
 }
 function toWordsUnsafe(bytes) {
-    const res = convert(bytes, 8, 5, true);
-    /* istanbul ignore else */
-    if (Array.isArray(res))
-        return res;
+    return convert(bytes, 8, 5, true);
 }
 function toWords(bytes) {
-    const res = convert(bytes, 8, 5, true);
-    /* istanbul ignore else */
-    if (Array.isArray(res))
-        return res;
-    // This is impossible to reach currently
-    /* istanbul ignore next */
-    throw new Error(res);
+    return convert(bytes, 8, 5, true);
 }
 function fromWordsUnsafe(words) {
     const res = convert(words, 5, 8, false);
@@ -89,17 +76,11 @@ function fromWords(words) {
 }
 function getLibraryFromEncoding(encoding) {
     let ENCODING_CONST;
-    /* istanbul ignore else */
     if (encoding === 'bech32') {
         ENCODING_CONST = 1;
     }
-    else if (encoding === 'bech32m') {
-        ENCODING_CONST = 0x2bc830a3;
-    }
     else {
-        // This is just to protect us from ourselves
-        /* istanbul ignore next */
-        throw new Error('Invalid encoding');
+        ENCODING_CONST = 0x2bc830a3;
     }
     function encode(prefix, words, LIMIT) {
         LIMIT = LIMIT || 90;

@@ -1,13 +1,9 @@
 'use strict';
 const ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
 
-// pre-compute lookup table
 const ALPHABET_MAP: { [key: string]: number } = {};
 for (let z = 0; z < ALPHABET.length; z++) {
   const x = ALPHABET.charAt(z);
-
-  /* istanbul ignore if */
-  if (ALPHABET_MAP[x] !== undefined) throw new TypeError(x + ' is ambiguous');
   ALPHABET_MAP[x] = z;
 }
 
@@ -40,6 +36,13 @@ function prefixChk(prefix: string): number | string {
   return chk;
 }
 
+function convert(data: ArrayLike<number>, inBits: number, outBits: number, pad: true): number[];
+function convert(
+  data: ArrayLike<number>,
+  inBits: number,
+  outBits: number,
+  pad: false,
+): number[] | string;
 function convert(
   data: ArrayLike<number>,
   inBits: number,
@@ -74,19 +77,11 @@ function convert(
 }
 
 function toWordsUnsafe(bytes: ArrayLike<number>): number[] | undefined {
-  const res = convert(bytes, 8, 5, true);
-  /* istanbul ignore else */
-  if (Array.isArray(res)) return res;
+  return convert(bytes, 8, 5, true);
 }
 
 function toWords(bytes: ArrayLike<number>): number[] {
-  const res = convert(bytes, 8, 5, true);
-  /* istanbul ignore else */
-  if (Array.isArray(res)) return res;
-
-  // This is impossible to reach currently
-  /* istanbul ignore next */
-  throw new Error(res);
+  return convert(bytes, 8, 5, true);
 }
 
 function fromWordsUnsafe(words: ArrayLike<number>): number[] | undefined {
@@ -103,15 +98,10 @@ function fromWords(words: ArrayLike<number>): number[] {
 
 function getLibraryFromEncoding(encoding: 'bech32' | 'bech32m'): BechLib {
   let ENCODING_CONST: number;
-  /* istanbul ignore else */
   if (encoding === 'bech32') {
     ENCODING_CONST = 1;
-  } else if (encoding === 'bech32m') {
-    ENCODING_CONST = 0x2bc830a3;
   } else {
-    // This is just to protect us from ourselves
-    /* istanbul ignore next */
-    throw new Error('Invalid encoding');
+    ENCODING_CONST = 0x2bc830a3;
   }
 
   function encode(prefix: string, words: ArrayLike<number>, LIMIT?: number): string {
