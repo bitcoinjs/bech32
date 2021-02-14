@@ -57,9 +57,6 @@ function convert(data, inBits, outBits, pad) {
     }
     return result;
 }
-function toWordsUnsafe(bytes) {
-    return convert(bytes, 8, 5, true);
-}
 function toWords(bytes) {
     return convert(bytes, 8, 5, true);
 }
@@ -164,7 +161,6 @@ function getLibraryFromEncoding(encoding) {
         decodeUnsafe,
         decode,
         encode,
-        toWordsUnsafe,
         toWords,
         fromWordsUnsafe,
         fromWords,
