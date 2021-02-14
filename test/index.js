@@ -44,6 +44,17 @@ function testValidFixture (f, bech32) {
       bech32.decode(string, f.limit)
     }, new RegExp('Invalid checksum|Unknown character'))
   })
+
+  // === compare of objects compares reference in memory, so this works
+  const wrongBech32 = bech32 === bech32Lib.bech32 ? bech32Lib.bech32m : bech32Lib.bech32
+  tape(`fails for ${f.string} with wrong encoding`, (t) => {
+    t.plan(2)
+
+    t.equal(wrongBech32.decodeUnsafe(f.string, f.limit), undefined)
+    t.throws(function () {
+      wrongBech32.decode(f.string, f.limit)
+    }, new RegExp('Invalid checksum'))
+  })
 }
 
 function testInvalidFixture (f, bech32) {
