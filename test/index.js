@@ -1,19 +1,23 @@
 'use strict'
-let tape = require('tape')
-let fixtures = require('./fixtures')
-let bech32 = require('../')
+const tape = require('tape')
+const fixtures = require('./fixtures')
+const bech32Lib = require('../')
 
-fixtures.bech32.valid.forEach((f) => {
-  tape(`fromWords/toWords ${f.hex}`, (t) => {
-    t.plan(2)
+function testValidFixture (f, bech32) {
+  if (f.hex) {
+    tape(`fromWords/toWords ${f.hex}`, (t) => {
+      t.plan(3)
 
-    let words = bech32.toWords(Buffer.from(f.hex, 'hex'))
-    let bytes = Buffer.from(bech32.fromWords(f.words))
-    t.same(words, f.words)
-    t.same(bytes.toString('hex'), f.hex)
-  })
+      const words = bech32.toWords(Buffer.from(f.hex, 'hex'))
+      const bytes = Buffer.from(bech32.fromWords(f.words))
+      const bytes2 = Buffer.from(bech32.fromWordsUnsafe(f.words))
+      t.same(words, f.words)
+      t.same(bytes.toString('hex'), f.hex)
+      t.same(bytes2.toString('hex'), f.hex)
+    })
+  }
 
-  tape(`encode ${f.prefix} ${f.hex}`, (t) => {
+  tape(`encode ${f.prefix} ${f.hex || f.words}`, (t) => {
     t.plan(1)
     t.strictEqual(bech32.encode(f.prefix, f.words, f.limit), f.string.toLowerCase())
   })
@@ -32,17 +36,28 @@ fixtures.bech32.valid.forEach((f) => {
   tape(`fails for ${f.string} with 1 bit flipped`, (t) => {
     t.plan(2)
 
-    let buffer = Buffer.from(f.string, 'utf8')
+    const buffer = Buffer.from(f.string, 'utf8')
     buffer[f.string.lastIndexOf('1') + 1] ^= 0x1 // flip a bit, after the prefix
-    let string = buffer.toString('utf8')
+    const string = buffer.toString('utf8')
     t.equal(bech32.decodeUnsafe(string, f.limit), undefined)
     t.throws(function () {
       bech32.decode(string, f.limit)
     }, new RegExp('Invalid checksum|Unknown character'))
   })
-})
 
-fixtures.bech32.invalid.forEach((f) => {
+  // === compare of objects compares reference in memory, so this works
+  const wrongBech32 = bech32 === bech32Lib.bech32 ? bech32Lib.bech32m : bech32Lib.bech32
+  tape(`fails for ${f.string} with wrong encoding`, (t) => {
+    t.plan(2)
+
+    t.equal(wrongBech32.decodeUnsafe(f.string, f.limit), undefined)
+    t.throws(function () {
+      wrongBech32.decode(f.string, f.limit)
+    }, new RegExp('Invalid checksum'))
+  })
+}
+
+function testInvalidFixture (f, bech32) {
   if (f.prefix !== undefined && f.words !== undefined) {
     tape(`encode fails with (${f.exception})`, (t) => {
       t.plan(1)
@@ -54,7 +69,7 @@ fixtures.bech32.invalid.forEach((f) => {
   }
 
   if (f.string !== undefined || f.stringHex) {
-    let string = f.string || Buffer.from(f.stringHex, 'hex').toString('binary')
+    const string = f.string || Buffer.from(f.stringHex, 'hex').toString('binary')
 
     tape(`decode fails for ${string} (${f.exception})`, (t) => {
       t.plan(2)
@@ -64,19 +79,35 @@ fixtures.bech32.invalid.forEach((f) => {
       }, new RegExp(f.exception))
     })
   }
+}
+
+fixtures.bech32.valid.forEach((f) => {
+  testValidFixture(f, bech32Lib.bech32)
+})
+
+fixtures.bech32.invalid.forEach((f) => {
+  testInvalidFixture(f, bech32Lib.bech32)
+})
+
+fixtures.bech32m.valid.forEach((f) => {
+  testValidFixture(f, bech32Lib.bech32m)
+})
+
+fixtures.bech32m.invalid.forEach((f) => {
+  testInvalidFixture(f, bech32Lib.bech32m)
 })
 
 fixtures.fromWords.invalid.forEach((f) => {
   tape(`fromWords fails with ${f.exception}`, (t) => {
     t.plan(2)
-    t.equal(bech32.fromWordsUnsafe(f.words), undefined)
+    t.equal(bech32Lib.bech32.fromWordsUnsafe(f.words), undefined)
     t.throws(function () {
-      bech32.fromWords(f.words)
+      bech32Lib.bech32.fromWords(f.words)
     }, new RegExp(f.exception))
   })
 })
 
-tape(`toWords/toWordsUnsafe accept bytes as ArrayLike<number>`, (t) => {
+tape('toWords/toWordsUnsafe accept bytes as ArrayLike<number>', (t) => {
   // Ensures that only the two operations from
   //   interface ArrayLike<T> {
   //     readonly length: number;
@@ -93,8 +124,8 @@ tape(`toWords/toWordsUnsafe accept bytes as ArrayLike<number>`, (t) => {
     3: 0x33,
     4: 0xff
   }
-  const words1 = bech32.toWords(bytes)
-  const words2 = bech32.toWordsUnsafe(bytes)
+  const words1 = bech32Lib.bech32.toWords(bytes)
+  const words2 = bech32Lib.bech32.toWordsUnsafe(bytes)
   t.plan(2)
   t.same(words1, [0, 0, 8, 18, 4, 12, 31, 31])
   t.same(words2, [0, 0, 8, 18, 4, 12, 31, 31])

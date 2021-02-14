@@ -6,6 +6,7 @@ var ALPHABET_MAP = {}
 for (var z = 0; z < ALPHABET.length; z++) {
   var x = ALPHABET.charAt(z)
 
+  /* istanbul ignore if */
   if (ALPHABET_MAP[x] !== undefined) throw new TypeError(x + ' is ambiguous')
   ALPHABET_MAP[x] = z
 }
@@ -35,88 +36,6 @@ function prefixChk (prefix) {
     chk = polymodStep(chk) ^ (v & 0x1f)
   }
   return chk
-}
-
-function encode (prefix, words, LIMIT) {
-  LIMIT = LIMIT || 90
-  if ((prefix.length + 7 + words.length) > LIMIT) throw new TypeError('Exceeds length limit')
-
-  prefix = prefix.toLowerCase()
-
-  // determine chk mod
-  var chk = prefixChk(prefix)
-  if (typeof chk === 'string') throw new Error(chk)
-
-  var result = prefix + '1'
-  for (var i = 0; i < words.length; ++i) {
-    var x = words[i]
-    if ((x >> 5) !== 0) throw new Error('Non 5-bit word')
-
-    chk = polymodStep(chk) ^ x
-    result += ALPHABET.charAt(x)
-  }
-
-  for (i = 0; i < 6; ++i) {
-    chk = polymodStep(chk)
-  }
-  chk ^= 1
-
-  for (i = 0; i < 6; ++i) {
-    var v = (chk >> ((5 - i) * 5)) & 0x1f
-    result += ALPHABET.charAt(v)
-  }
-
-  return result
-}
-
-function __decode (str, LIMIT) {
-  LIMIT = LIMIT || 90
-  if (str.length < 8) return str + ' too short'
-  if (str.length > LIMIT) return 'Exceeds length limit'
-
-  // don't allow mixed case
-  var lowered = str.toLowerCase()
-  var uppered = str.toUpperCase()
-  if (str !== lowered && str !== uppered) return 'Mixed-case string ' + str
-  str = lowered
-
-  var split = str.lastIndexOf('1')
-  if (split === -1) return 'No separator character for ' + str
-  if (split === 0) return 'Missing prefix for ' + str
-
-  var prefix = str.slice(0, split)
-  var wordChars = str.slice(split + 1)
-  if (wordChars.length < 6) return 'Data too short'
-
-  var chk = prefixChk(prefix)
-  if (typeof chk === 'string') return chk
-
-  var words = []
-  for (var i = 0; i < wordChars.length; ++i) {
-    var c = wordChars.charAt(i)
-    var v = ALPHABET_MAP[c]
-    if (v === undefined) return 'Unknown character ' + c
-    chk = polymodStep(chk) ^ v
-
-    // not in the checksum?
-    if (i + 6 >= wordChars.length) continue
-    words.push(v)
-  }
-
-  if (chk !== 1) return 'Invalid checksum for ' + str
-  return { prefix: prefix, words: words }
-}
-
-function decodeUnsafe () {
-  var res = __decode.apply(null, arguments)
-  if (typeof res === 'object') return res
-}
-
-function decode (str) {
-  var res = __decode.apply(null, arguments)
-  if (typeof res === 'object') return res
-
-  throw new Error(res)
 }
 
 function convert (data, inBits, outBits, pad) {
@@ -149,13 +68,17 @@ function convert (data, inBits, outBits, pad) {
 
 function toWordsUnsafe (bytes) {
   var res = convert(bytes, 8, 5, true)
+  /* istanbul ignore else */
   if (Array.isArray(res)) return res
 }
 
 function toWords (bytes) {
   var res = convert(bytes, 8, 5, true)
+  /* istanbul ignore else */
   if (Array.isArray(res)) return res
 
+  // This is impossible to reach currently
+  /* istanbul ignore next */
   throw new Error(res)
 }
 
@@ -171,12 +94,113 @@ function fromWords (words) {
   throw new Error(res)
 }
 
+function getLibraryFromEncoding (encoding) {
+  var ENCODING_CONST
+  /* istanbul ignore else */
+  if (encoding === 'bech32') {
+    ENCODING_CONST = 1
+  } else if (encoding === 'bech32m') {
+    ENCODING_CONST = 0x2bc830a3
+  } else {
+    // This is just to protect us from ourselves
+    /* istanbul ignore next */
+    throw new Error('Invalid encoding')
+  }
+
+  function encode (prefix, words, LIMIT) {
+    LIMIT = LIMIT || 90
+    if ((prefix.length + 7 + words.length) > LIMIT) throw new TypeError('Exceeds length limit')
+
+    prefix = prefix.toLowerCase()
+
+    // determine chk mod
+    var chk = prefixChk(prefix)
+    if (typeof chk === 'string') throw new Error(chk)
+
+    var result = prefix + '1'
+    for (var i = 0; i < words.length; ++i) {
+      var x = words[i]
+      if ((x >> 5) !== 0) throw new Error('Non 5-bit word')
+
+      chk = polymodStep(chk) ^ x
+      result += ALPHABET.charAt(x)
+    }
+
+    for (i = 0; i < 6; ++i) {
+      chk = polymodStep(chk)
+    }
+    chk ^= ENCODING_CONST
+
+    for (i = 0; i < 6; ++i) {
+      var v = (chk >> ((5 - i) * 5)) & 0x1f
+      result += ALPHABET.charAt(v)
+    }
+
+    return result
+  }
+
+  function __decode (str, LIMIT) {
+    LIMIT = LIMIT || 90
+    if (str.length < 8) return str + ' too short'
+    if (str.length > LIMIT) return 'Exceeds length limit'
+
+    // don't allow mixed case
+    var lowered = str.toLowerCase()
+    var uppered = str.toUpperCase()
+    if (str !== lowered && str !== uppered) return 'Mixed-case string ' + str
+    str = lowered
+
+    var split = str.lastIndexOf('1')
+    if (split === -1) return 'No separator character for ' + str
+    if (split === 0) return 'Missing prefix for ' + str
+
+    var prefix = str.slice(0, split)
+    var wordChars = str.slice(split + 1)
+    if (wordChars.length < 6) return 'Data too short'
+
+    var chk = prefixChk(prefix)
+    if (typeof chk === 'string') return chk
+
+    var words = []
+    for (var i = 0; i < wordChars.length; ++i) {
+      var c = wordChars.charAt(i)
+      var v = ALPHABET_MAP[c]
+      if (v === undefined) return 'Unknown character ' + c
+      chk = polymodStep(chk) ^ v
+
+      // not in the checksum?
+      if (i + 6 >= wordChars.length) continue
+      words.push(v)
+    }
+
+    if (chk !== ENCODING_CONST) return 'Invalid checksum for ' + str
+    return { prefix: prefix, words: words }
+  }
+
+  function decodeUnsafe () {
+    var res = __decode.apply(null, arguments)
+    if (typeof res === 'object') return res
+  }
+
+  function decode (str) {
+    var res = __decode.apply(null, arguments)
+    if (typeof res === 'object') return res
+
+    throw new Error(res)
+  }
+
+  return {
+    decodeUnsafe: decodeUnsafe,
+    decode: decode,
+    encode: encode,
+    toWordsUnsafe: toWordsUnsafe,
+    toWords: toWords,
+    fromWordsUnsafe: fromWordsUnsafe,
+    fromWords: fromWords
+  }
+}
+
 module.exports = {
-  decodeUnsafe: decodeUnsafe,
-  decode: decode,
-  encode: encode,
-  toWordsUnsafe: toWordsUnsafe,
-  toWords: toWords,
-  fromWordsUnsafe: fromWordsUnsafe,
-  fromWords: fromWords
+  bech32: getLibraryFromEncoding('bech32'),
+  bech32m: getLibraryFromEncoding('bech32m')
 }

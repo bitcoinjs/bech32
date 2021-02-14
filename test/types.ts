@@ -2,7 +2,7 @@
 // When you open it in Visual Studio Code, the built-in TypeScript server should run all
 // the type checks. For manually runtime testing you can use ts-node to run this file.
 
-import * as bech32 from "..";
+import { bech32 } from "..";
 
 function encodeUint8Array(prefix: string, data: Uint8Array): string {
   const address = bech32.encode(prefix, bech32.toWords(data));
