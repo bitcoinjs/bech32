@@ -1,15 +1,15 @@
 'use strict'
-let tape = require('tape')
-let fixtures = require('./fixtures')
-let bech32 = require('../')
+const tape = require('tape')
+const fixtures = require('./fixtures')
+const bech32 = require('../')
 
 function testValidFixture (f, encoding) {
   if (f.hex) {
     tape(`fromWords/toWords ${f.hex}`, (t) => {
       t.plan(2)
 
-      let words = bech32.toWords(Buffer.from(f.hex, 'hex'))
-      let bytes = Buffer.from(bech32.fromWords(f.words))
+      const words = bech32.toWords(Buffer.from(f.hex, 'hex'))
+      const bytes = Buffer.from(bech32.fromWords(f.words))
       t.same(words, f.words)
       t.same(bytes.toString('hex'), f.hex)
     })
@@ -34,9 +34,9 @@ function testValidFixture (f, encoding) {
   tape(`fails for ${f.string} with 1 bit flipped`, (t) => {
     t.plan(2)
 
-    let buffer = Buffer.from(f.string, 'utf8')
+    const buffer = Buffer.from(f.string, 'utf8')
     buffer[f.string.lastIndexOf('1') + 1] ^= 0x1 // flip a bit, after the prefix
-    let string = buffer.toString('utf8')
+    const string = buffer.toString('utf8')
     t.equal(bech32.decodeUnsafe(string, encoding, f.limit), undefined)
     t.throws(function () {
       bech32.decode(string, encoding, f.limit)
@@ -66,7 +66,7 @@ function testInvalidFixture (f, encoding) {
   }
 
   if (f.string !== undefined || f.stringHex) {
-    let string = f.string || Buffer.from(f.stringHex, 'hex').toString('binary')
+    const string = f.string || Buffer.from(f.stringHex, 'hex').toString('binary')
 
     tape(`decode fails for ${string} (${f.exception})`, (t) => {
       t.plan(2)
@@ -104,7 +104,7 @@ fixtures.fromWords.invalid.forEach((f) => {
   })
 })
 
-tape(`toWords/toWordsUnsafe accept bytes as ArrayLike<number>`, (t) => {
+tape('toWords/toWordsUnsafe accept bytes as ArrayLike<number>', (t) => {
   // Ensures that only the two operations from
   //   interface ArrayLike<T> {
   //     readonly length: number;
