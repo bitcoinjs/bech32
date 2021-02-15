@@ -1,7 +1,7 @@
 'use strict';
 import * as bech32Lib from '../';
 import * as tape from 'tape';
-const fixtures = require('./fixtures');
+const fixtures = require('../../src/test/fixtures');
 
 type Fixture = { string: string; prefix: string; hex: string; words: number[]; limit?: number };
 type InvalidFixture = {

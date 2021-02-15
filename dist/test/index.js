@@ -1,8 +1,8 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
+const bech32Lib = require("../");
 const tape = require("tape");
-const fixtures = require('./fixtures');
-const bech32Lib = require('../');
+const fixtures = require('../../src/test/fixtures');
 function testValidFixture(f, bech32) {
     if (f.hex) {
         tape(`fromWords/toWords ${f.hex}`, (t) => {
@@ -105,9 +105,7 @@ tape('toWords/toWordsUnsafe accept bytes as ArrayLike<number>', (t) => {
         3: 0x33,
         4: 0xff,
     };
-    const words1 = bech32Lib.bech32.toWords(bytes);
-    const words2 = bech32Lib.bech32.toWordsUnsafe(bytes);
-    t.plan(2);
-    t.same(words1, [0, 0, 8, 18, 4, 12, 31, 31]);
-    t.same(words2, [0, 0, 8, 18, 4, 12, 31, 31]);
+    const words = bech32Lib.bech32.toWords(bytes);
+    t.plan(1);
+    t.same(words, [0, 0, 8, 18, 4, 12, 31, 31]);
 });
