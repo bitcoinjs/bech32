@@ -1,4 +1,3 @@
-declare function toWordsUnsafe(bytes: ArrayLike<number>): number[] | undefined;
 declare function toWords(bytes: ArrayLike<number>): number[];
 declare function fromWordsUnsafe(words: ArrayLike<number>): number[] | undefined;
 declare function fromWords(words: ArrayLike<number>): number[];
@@ -12,7 +11,6 @@ export interface BechLib {
     decodeUnsafe: (str: string, LIMIT?: number | undefined) => Decoded | undefined;
     decode: (str: string, LIMIT?: number | undefined) => Decoded;
     encode: (prefix: string, words: ArrayLike<number>, LIMIT?: number | undefined) => string;
-    toWordsUnsafe: typeof toWordsUnsafe;
     toWords: typeof toWords;
     fromWordsUnsafe: typeof fromWordsUnsafe;
     fromWords: typeof fromWords;

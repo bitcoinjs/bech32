@@ -1,6 +1,7 @@
 'use strict';
+import * as bech32Lib from '../';
 import * as tape from 'tape';
-const fixtures = require('./fixtures');
+const fixtures = require('../../src/test/fixtures');
 
 type Fixture = { string: string; prefix: string; hex: string; words: number[]; limit?: number };
 type InvalidFixture = {
@@ -12,8 +13,6 @@ type InvalidFixture = {
   limit?: number;
   exception: string;
 };
-
-const bech32Lib = require('../');
 
 function testValidFixture(f: Fixture, bech32: any): void {
   if (f.hex) {
@@ -136,9 +135,7 @@ tape('toWords/toWordsUnsafe accept bytes as ArrayLike<number>', (t): void => {
     3: 0x33,
     4: 0xff,
   };
-  const words1 = bech32Lib.bech32.toWords(bytes);
-  const words2 = bech32Lib.bech32.toWordsUnsafe(bytes);
-  t.plan(2);
-  t.same(words1, [0, 0, 8, 18, 4, 12, 31, 31]);
-  t.same(words2, [0, 0, 8, 18, 4, 12, 31, 31]);
+  const words = bech32Lib.bech32.toWords(bytes);
+  t.plan(1);
+  t.same(words, [0, 0, 8, 18, 4, 12, 31, 31]);
 });

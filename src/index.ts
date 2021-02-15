@@ -76,10 +76,6 @@ function convert(
   return result;
 }
 
-function toWordsUnsafe(bytes: ArrayLike<number>): number[] | undefined {
-  return convert(bytes, 8, 5, true);
-}
-
 function toWords(bytes: ArrayLike<number>): number[] {
   return convert(bytes, 8, 5, true);
 }
@@ -190,7 +186,6 @@ function getLibraryFromEncoding(encoding: 'bech32' | 'bech32m'): BechLib {
     decodeUnsafe,
     decode,
     encode,
-    toWordsUnsafe,
     toWords,
     fromWordsUnsafe,
     fromWords,
@@ -207,7 +202,6 @@ export interface BechLib {
   decodeUnsafe: (str: string, LIMIT?: number | undefined) => Decoded | undefined;
   decode: (str: string, LIMIT?: number | undefined) => Decoded;
   encode: (prefix: string, words: ArrayLike<number>, LIMIT?: number | undefined) => string;
-  toWordsUnsafe: typeof toWordsUnsafe;
   toWords: typeof toWords;
   fromWordsUnsafe: typeof fromWordsUnsafe;
   fromWords: typeof fromWords;
