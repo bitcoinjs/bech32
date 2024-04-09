@@ -1,6 +1,7 @@
 'use strict';
 import * as bech32Lib from '../';
 import * as tape from 'tape';
+import * as uint8arraytools from 'uint8array-tools';
 const fixtures = require('../../src/test/fixtures');
 
 type Fixture = { string: string; prefix: string; hex: string; words: number[]; limit?: number };
@@ -19,12 +20,12 @@ function testValidFixture(f: Fixture, bech32: any): void {
     tape(`fromWords/toWords ${f.hex}`, (t): void => {
       t.plan(3);
 
-      const words = bech32.toWords(Buffer.from(f.hex, 'hex'));
-      const bytes = Buffer.from(bech32.fromWords(f.words));
-      const bytes2 = Buffer.from(bech32.fromWordsUnsafe(f.words));
+      const words = bech32.toWords(uint8arraytools.fromHex(f.hex));
+      const bytes = new Uint8Array(Buffer.from(bech32.fromWords(f.words)));
+      const bytes2 = new Uint8Array(Buffer.from(bech32.fromWordsUnsafe(f.words)));
       t.same(words, f.words);
-      t.same(bytes.toString('hex'), f.hex);
-      t.same(bytes2.toString('hex'), f.hex);
+      t.same(Buffer.from(bytes).toString('hex'), f.hex);
+      t.same(Buffer.from(bytes2).toString('hex'), f.hex);
     });
   }
 
@@ -47,9 +48,9 @@ function testValidFixture(f: Fixture, bech32: any): void {
   tape(`fails for ${f.string} with 1 bit flipped`, (t): void => {
     t.plan(2);
 
-    const buffer = Buffer.from(f.string, 'utf8');
+    const buffer = new Uint8Array(Buffer.from(f.string, 'utf8'));
     buffer[f.string.lastIndexOf('1') + 1] ^= 0x1; // flip a bit, after the prefix
-    const str = buffer.toString('utf8');
+    const str = Buffer.from(buffer).toString('utf8');
     t.equal(bech32.decodeUnsafe(str, f.limit), undefined);
     t.throws((): void => {
       bech32.decode(str, f.limit);
@@ -80,7 +81,8 @@ function testInvalidFixture(f: InvalidFixture, bech32: any): void {
   }
 
   if (f.string !== undefined || f.stringHex) {
-    const str = f.string || Buffer.from(f.stringHex, 'hex').toString('binary');
+    const str =
+      f.string || Buffer.from(Uint8Array.from(Buffer.from(f.string, 'hex'))).toString('binary');
 
     tape(`decode fails for ${str} (${f.exception})`, (t): void => {
       t.plan(2);

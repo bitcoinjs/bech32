@@ -46,5 +46,8 @@
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "prettier": "prettier --print-width 100 --single-quote --trailing-comma=all \"**/!(*.d).ts\"",
     "test": "tape dist/test/*.js | tap-dot"
+  },
+  "dependencies": {
+    "uint8array-tools": "^0.0.7"
   }
 }
