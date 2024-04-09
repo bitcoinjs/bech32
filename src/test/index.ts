@@ -81,8 +81,7 @@ function testInvalidFixture(f: InvalidFixture, bech32: any): void {
   }
 
   if (f.string !== undefined || f.stringHex) {
-    const str =
-      f.string || Buffer.from(Uint8Array.from(Buffer.from(f.string, 'hex'))).toString('binary');
+    const str = f.string || Buffer.from(Uint8Array.from(Buffer.from(f.string, 'hex'))).toString('binary');
 
     tape(`decode fails for ${str} (${f.exception})`, (t): void => {
       t.plan(2);
