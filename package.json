@@ -20,14 +20,14 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/cjs/index.js",
-    "dist/esm/index.d.ts",
+    "dist/cjs/index.d.ts",
     "dist/esm/index.js"
   ],
   "exports": {
     ".": {
       "require": "./dist/cjs/index.js",
       "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "types": "./dist/cjs/index.d.ts"
     }
   },
   "license": "MIT",
