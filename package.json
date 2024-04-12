@@ -2,6 +2,7 @@
   "name": "bech32",
   "version": "2.0.0",
   "description": "Bech32 encoding / decoding",
+  "type": "module",
   "keywords": [
     "base32",
     "bech32",
@@ -14,22 +15,33 @@
     "encode",
     "encoding"
   ],
-  "main": "dist/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/index.js",
-    "dist/index.d.ts"
+    "dist/cjs/index.js",
+    "dist/esm/index.d.ts",
+    "dist/esm/index.js"
   ],
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^14.0.14",
-    "@types/tape": "^4.13.0",
+    "@types/tape": "^4.13.4",
     "nyc": "^15.0.0",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
     "tap-dot": "*",
-    "tape": "^4.13.2",
+    "tape": "^5.3.0",
+    "ts-node": "^10.9.2",
     "tslint": "^6.1.3",
+    "tsx": "^4.7.2",
     "typescript": "^3.9.5"
   },
   "repository": {
@@ -37,7 +49,7 @@
     "type": "git"
   },
   "scripts": {
-    "build": "npm run clean && tsc -d",
+    "build": "npm run clean && rm -rf dist/* && tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
     "clean": "rimraf dist",
     "coverage": "nyc -x dist/test/*.js --check-coverage --branches 90 --functions 90 tape dist/test/*.js",
     "format": "npm run prettier -- --write",
@@ -45,6 +57,6 @@
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "prettier": "prettier --print-width 100 --single-quote --trailing-comma=all \"**/!(*.d).ts\"",
-    "test": "tape dist/test/*.js | tap-dot"
+    "test": "tsx node_modules/.bin/tape src/test/**/*.ts | tap-dot"
   }
 }

@@ -1,12 +1,9 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "strict": true,
-    "outDir": "dist",
-    "target": "es2015",
-    "module": "commonjs",
-    "noImplicitAny": true,
-    "preserveConstEnums": true
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "src/test/types.ts"]
+    "outDir": "dist/esm",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "module": "ESNext"
+  }
 }
