@@ -48,6 +48,6 @@
     "test": "tape dist/test/*.js | tap-dot"
   },
   "dependencies": {
-    "uint8array-tools": "^0.0.7"
+    "uint8array-tools": "github:barrytra/uint8array-tools#utf8-to-bytes"
   }
 }

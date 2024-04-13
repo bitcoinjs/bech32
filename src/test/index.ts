@@ -21,11 +21,11 @@ function testValidFixture(f: Fixture, bech32: any): void {
       t.plan(3);
 
       const words = bech32.toWords(uint8arraytools.fromHex(f.hex));
-      const bytes = new Uint8Array(Buffer.from(bech32.fromWords(f.words)));
-      const bytes2 = new Uint8Array(Buffer.from(bech32.fromWordsUnsafe(f.words)));
+      const bytes = uint8arraytools.fromUtf8(bech32.fromWords(f.words));
+      const bytes2 = uint8arraytools.fromUtf8(bech32.fromWordsUnsafe(f.words));
       t.same(words, f.words);
-      t.same(Buffer.from(bytes).toString('hex'), f.hex);
-      t.same(Buffer.from(bytes2).toString('hex'), f.hex);
+      t.same(uint8arraytools.toHex(bytes), f.hex);
+      t.same(uint8arraytools.toHex(bytes), f.hex);
     });
   }
 
@@ -48,9 +48,9 @@ function testValidFixture(f: Fixture, bech32: any): void {
   tape(`fails for ${f.string} with 1 bit flipped`, (t): void => {
     t.plan(2);
 
-    const buffer = new Uint8Array(Buffer.from(f.string, 'utf8'));
-    buffer[f.string.lastIndexOf('1') + 1] ^= 0x1; // flip a bit, after the prefix
-    const str = Buffer.from(buffer).toString('utf8');
+    const uint8array = uint8arraytools.fromUtf8(f.string);
+    uint8array[f.string.lastIndexOf('1') + 1] ^= 0x1; // flip a bit, after the prefix
+    const str = uint8arraytools.toUtf8(uint8array);
     t.equal(bech32.decodeUnsafe(str, f.limit), undefined);
     t.throws((): void => {
       bech32.decode(str, f.limit);
@@ -81,7 +81,7 @@ function testInvalidFixture(f: InvalidFixture, bech32: any): void {
   }
 
   if (f.string !== undefined || f.stringHex) {
-    const str = f.string || Buffer.from(uint8arraytools.fromHex(f.string)).toString('binary');
+    const str = f.string || uint8arraytools.toUtf8(uint8arraytools.fromHex(f.stringHex));
 
     tape(`decode fails for ${str} (${f.exception})`, (t): void => {
       t.plan(2);
