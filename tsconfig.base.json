@@ -7,6 +7,5 @@
     "noImplicitAny": true,
     "preserveConstEnums": true
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "src/test/**/*"]
+  "include": ["src"]
 }

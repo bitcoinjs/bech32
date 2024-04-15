@@ -5,5 +5,6 @@
     "emitDeclarationOnly": false,
     "outDir": "dist/cjs",
     "module": "commonjs"
-  }
+  },
+  "exclude": ["node_modules", "src/test/**/*"]
 }

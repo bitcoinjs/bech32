@@ -56,7 +56,7 @@
     "format:ci": "npm run prettier -- --check",
     "gitdiff:ci": "npm run build && git diff --exit-code",
     "lint:fix": "npm run lint -- --fix",
-    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "lint": "tslint -p tsconfig.base.json -c tslint.json",
     "prettier": "prettier --print-width 100 --single-quote --trailing-comma=all \"**/!(*.d).ts\"",
     "test": "tsx node_modules/.bin/tape src/test/**/*.ts | tap-dot"
   }
