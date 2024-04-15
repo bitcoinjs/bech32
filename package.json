@@ -51,10 +51,11 @@
   "scripts": {
     "build": "npm run clean && rm -rf dist/* && tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
     "clean": "rimraf dist",
-    "coverage": "nyc -x dist/test/*.js --check-coverage --branches 90 --functions 90 tape dist/test/*.js",
+    "coverage": "nyc -x [src/test/*.ts] --check-coverage --branches 90 --functions 90 npm test",
     "format": "npm run prettier -- --write",
     "format:ci": "npm run prettier -- --check",
     "gitdiff:ci": "npm run build && git diff --exit-code",
+    "lint:fix": "npm run lint -- --fix",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "prettier": "prettier --print-width 100 --single-quote --trailing-comma=all \"**/!(*.d).ts\"",
     "test": "tsx node_modules/.bin/tape src/test/**/*.ts | tap-dot"
