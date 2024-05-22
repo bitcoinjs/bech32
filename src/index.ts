@@ -36,23 +36,18 @@ function prefixChk(prefix: string): number | string {
   return chk;
 }
 
+function convert(data: ArrayLike<number>, inBits: number, outBits: number, pad: true): number[];
 function convert(
   data: ArrayLike<number>,
   inBits: number,
   outBits: number,
-  pad: true
-): number[];
-function convert(
-  data: ArrayLike<number>,
-  inBits: number,
-  outBits: number,
-  pad: false
+  pad: false,
 ): number[] | string;
 function convert(
   data: ArrayLike<number>,
   inBits: number,
   outBits: number,
-  pad: boolean
+  pad: boolean,
 ): number[] | string {
   let value = 0;
   let bits = 0;
@@ -105,14 +100,9 @@ function getLibraryFromEncoding(encoding: 'bech32' | 'bech32m'): BechLib {
     ENCODING_CONST = 0x2bc830a3;
   }
 
-  function encode(
-    prefix: string,
-    words: ArrayLike<number>,
-    LIMIT?: number
-  ): string {
+  function encode(prefix: string, words: ArrayLike<number>, LIMIT?: number): string {
     LIMIT = LIMIT || 90;
-    if (prefix.length + 7 + words.length > LIMIT)
-      throw new TypeError('Exceeds length limit');
+    if (prefix.length + 7 + words.length > LIMIT) throw new TypeError('Exceeds length limit');
 
     prefix = prefix.toLowerCase();
 
@@ -209,16 +199,9 @@ export interface Decoded {
   words: number[];
 }
 export interface BechLib {
-  decodeUnsafe: (
-    str: string,
-    LIMIT?: number | undefined
-  ) => Decoded | undefined;
+  decodeUnsafe: (str: string, LIMIT?: number | undefined) => Decoded | undefined;
   decode: (str: string, LIMIT?: number | undefined) => Decoded;
-  encode: (
-    prefix: string,
-    words: ArrayLike<number>,
-    LIMIT?: number | undefined
-  ) => string;
+  encode: (prefix: string, words: ArrayLike<number>, LIMIT?: number | undefined) => string;
   toWords: typeof toWords;
   fromWordsUnsafe: typeof fromWordsUnsafe;
   fromWords: typeof fromWords;

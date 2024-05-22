@@ -1,10 +1,10 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "declaration": true,
-    "emitDeclarationOnly": false,
-    "outDir": "dist/cjs",
-    "module": "commonjs"
-  },
-  "exclude": ["node_modules", "src/test/**/*"]
+    "extends": "./tsconfig.base.json",
+    "compilerOptions": {
+        "declaration": true,
+        "emitDeclarationOnly": false,
+        "outDir": "dist/cjs",
+        "module": "commonjs"
+    },
+    "exclude": ["node_modules"]
 }

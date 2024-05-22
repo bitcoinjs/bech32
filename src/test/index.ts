@@ -1,7 +1,9 @@
 'use strict';
-import * as bech32Lib from '../';
-import tape from 'tape';
-import * as fixtures from './fixtures.json';
+
+// @ts-ignore
+import * as bech32Lib from '../index.cjs';
+import * as tape from 'tape';
+const fixtures = require('../../../src/test/fixtures');
 
 type Fixture = {
   string: string;
@@ -37,10 +39,7 @@ function testValidFixture(f: Fixture, bech32: any): void {
 
   tape(`encode ${f.prefix} ${f.hex || f.words}`, (t): void => {
     t.plan(1);
-    t.strictEqual(
-      bech32.encode(f.prefix, f.words, f.limit),
-      f.string.toLowerCase()
-    );
+    t.strictEqual(bech32.encode(f.prefix, f.words, f.limit), f.string.toLowerCase());
   });
 
   tape(`decode ${f.string}`, (t): void => {
@@ -67,8 +66,7 @@ function testValidFixture(f: Fixture, bech32: any): void {
   });
 
   // === compare of objects compares reference in memory, so this works
-  const wrongBech32 =
-    bech32 === bech32Lib.bech32 ? bech32Lib.bech32m : bech32Lib.bech32;
+  const wrongBech32 = bech32 === bech32Lib.bech32 ? bech32Lib.bech32m : bech32Lib.bech32;
   tape(`fails for ${f.string} with wrong encoding`, (t): void => {
     t.plan(2);
 
@@ -107,35 +105,27 @@ fixtures.bech32.valid.forEach((f: Fixture): void => {
   testValidFixture(f, bech32Lib.bech32);
 });
 
-((fixtures.bech32.invalid as unknown) as InvalidFixture[]).forEach(
-  (f: InvalidFixture): void => {
-    testInvalidFixture(f, bech32Lib.bech32);
-  }
-);
+((fixtures.bech32.invalid as unknown) as InvalidFixture[]).forEach((f: InvalidFixture): void => {
+  testInvalidFixture(f, bech32Lib.bech32);
+});
 
-((fixtures.bech32m.valid as unknown) as Fixture[]).forEach(
-  (f: Fixture): void => {
-    testValidFixture(f, bech32Lib.bech32m);
-  }
-);
+((fixtures.bech32m.valid as unknown) as Fixture[]).forEach((f: Fixture): void => {
+  testValidFixture(f, bech32Lib.bech32m);
+});
 
-((fixtures.bech32m.invalid as unknown) as InvalidFixture[]).forEach(
-  (f: InvalidFixture): void => {
-    testInvalidFixture(f, bech32Lib.bech32m);
-  }
-);
+((fixtures.bech32m.invalid as unknown) as InvalidFixture[]).forEach((f: InvalidFixture): void => {
+  testInvalidFixture(f, bech32Lib.bech32m);
+});
 
-((fixtures.fromWords.invalid as unknown) as InvalidFixture[]).forEach(
-  (f: InvalidFixture): void => {
-    tape(`fromWords fails with ${f.exception}`, (t): void => {
-      t.plan(2);
-      t.equal(bech32Lib.bech32.fromWordsUnsafe(f.words), undefined);
-      t.throws((): void => {
-        bech32Lib.bech32.fromWords(f.words);
-      }, new RegExp(f.exception));
-    });
-  }
-);
+((fixtures.fromWords.invalid as unknown) as InvalidFixture[]).forEach((f: InvalidFixture): void => {
+  tape(`fromWords fails with ${f.exception}`, (t): void => {
+    t.plan(2);
+    t.equal(bech32Lib.bech32.fromWordsUnsafe(f.words), undefined);
+    t.throws((): void => {
+      bech32Lib.bech32.fromWords(f.words);
+    }, new RegExp(f.exception));
+  });
+});
 
 tape('toWords/toWordsUnsafe accept bytes as ArrayLike<number>', (t): void => {
   // Ensures that only the two operations from
