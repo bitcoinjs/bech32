@@ -105,19 +105,19 @@ fixtures.bech32.valid.forEach((f: Fixture): void => {
   testValidFixture(f, bech32Lib.bech32);
 });
 
-((fixtures.bech32.invalid as unknown) as InvalidFixture[]).forEach((f: InvalidFixture): void => {
+fixtures.bech32.invalid.forEach((f: InvalidFixture): void => {
   testInvalidFixture(f, bech32Lib.bech32);
 });
 
-((fixtures.bech32m.valid as unknown) as Fixture[]).forEach((f: Fixture): void => {
+fixtures.bech32m.valid.forEach((f: Fixture): void => {
   testValidFixture(f, bech32Lib.bech32m);
 });
 
-((fixtures.bech32m.invalid as unknown) as InvalidFixture[]).forEach((f: InvalidFixture): void => {
+fixtures.bech32m.invalid.forEach((f: InvalidFixture): void => {
   testInvalidFixture(f, bech32Lib.bech32m);
 });
 
-((fixtures.fromWords.invalid as unknown) as InvalidFixture[]).forEach((f: InvalidFixture): void => {
+fixtures.fromWords.invalid.forEach((f: InvalidFixture): void => {
   tape(`fromWords fails with ${f.exception}`, (t): void => {
     t.plan(2);
     t.equal(bech32Lib.bech32.fromWordsUnsafe(f.words), undefined);

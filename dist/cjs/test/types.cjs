@@ -40,21 +40,21 @@ function decodeUnsafe(address) {
 }
 function main() {
     {
-        const prefix = "foo";
+        const prefix = 'foo';
         const data = new Uint8Array([0x00, 0x11, 0x22]);
         const address = encodeUint8Array(prefix, data);
         const decoded = decodeUint8Array(address);
         console.log(prefix, data, address, decoded);
     }
     {
-        const prefix = "foo";
+        const prefix = 'foo';
         const data = Buffer.from([0x00, 0x11, 0x22]);
         const address = encodeBuffer(prefix, data);
         const decoded = decodeBuffer(address);
         console.log(prefix, data, address, decoded);
     }
     {
-        const prefix = "foo";
+        const prefix = 'foo';
         const data = new Uint8Array([0x00, 0x11, 0x22]);
         const address = encodeUnsafe(prefix, data);
         const decoded = decodeUnsafe(address);

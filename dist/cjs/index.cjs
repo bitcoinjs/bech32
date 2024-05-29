@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.bech32m = exports.bech32 = void 0;
-const ALPHABET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+const ALPHABET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
 const ALPHABET_MAP = {};
 for (let z = 0; z < ALPHABET.length; z++) {
     const x = ALPHABET.charAt(z);
@@ -21,7 +21,7 @@ function prefixChk(prefix) {
     for (let i = 0; i < prefix.length; ++i) {
         const c = prefix.charCodeAt(i);
         if (c < 33 || c > 126)
-            return 'Invalid prefix (' + prefix + ')';
+            return "Invalid prefix (" + prefix + ")";
         chk = polymodStep(chk) ^ (c >> 5);
     }
     chk = polymodStep(chk);
@@ -51,9 +51,9 @@ function convert(data, inBits, outBits, pad) {
     }
     else {
         if (bits >= inBits)
-            return 'Excess padding';
+            return "Excess padding";
         if ((value << (outBits - bits)) & maxV)
-            return 'Non-zero padding';
+            return "Non-zero padding";
     }
     return result;
 }
@@ -73,7 +73,7 @@ function fromWords(words) {
 }
 function getLibraryFromEncoding(encoding) {
     let ENCODING_CONST;
-    if (encoding === 'bech32') {
+    if (encoding === "bech32") {
         ENCODING_CONST = 1;
     }
     else {
@@ -82,17 +82,17 @@ function getLibraryFromEncoding(encoding) {
     function encode(prefix, words, LIMIT) {
         LIMIT = LIMIT || 90;
         if (prefix.length + 7 + words.length > LIMIT)
-            throw new TypeError('Exceeds length limit');
+            throw new TypeError("Exceeds length limit");
         prefix = prefix.toLowerCase();
         // determine chk mod
         let chk = prefixChk(prefix);
-        if (typeof chk === 'string')
+        if (typeof chk === "string")
             throw new Error(chk);
-        let result = prefix + '1';
+        let result = prefix + "1";
         for (let i = 0; i < words.length; ++i) {
             const x = words[i];
             if (x >> 5 !== 0)
-                throw new Error('Non 5-bit word');
+                throw new Error("Non 5-bit word");
             chk = polymodStep(chk) ^ x;
             result += ALPHABET.charAt(x);
         }
@@ -109,33 +109,33 @@ function getLibraryFromEncoding(encoding) {
     function __decode(str, LIMIT) {
         LIMIT = LIMIT || 90;
         if (str.length < 8)
-            return str + ' too short';
+            return str + " too short";
         if (str.length > LIMIT)
-            return 'Exceeds length limit';
+            return "Exceeds length limit";
         // don't allow mixed case
         const lowered = str.toLowerCase();
         const uppered = str.toUpperCase();
         if (str !== lowered && str !== uppered)
-            return 'Mixed-case string ' + str;
+            return "Mixed-case string " + str;
         str = lowered;
-        const split = str.lastIndexOf('1');
+        const split = str.lastIndexOf("1");
         if (split === -1)
-            return 'No separator character for ' + str;
+            return "No separator character for " + str;
         if (split === 0)
-            return 'Missing prefix for ' + str;
+            return "Missing prefix for " + str;
         const prefix = str.slice(0, split);
         const wordChars = str.slice(split + 1);
         if (wordChars.length < 6)
-            return 'Data too short';
+            return "Data too short";
         let chk = prefixChk(prefix);
-        if (typeof chk === 'string')
+        if (typeof chk === "string")
             return chk;
         const words = [];
         for (let i = 0; i < wordChars.length; ++i) {
             const c = wordChars.charAt(i);
             const v = ALPHABET_MAP[c];
             if (v === undefined)
-                return 'Unknown character ' + c;
+                return "Unknown character " + c;
             chk = polymodStep(chk) ^ v;
             // not in the checksum?
             if (i + 6 >= wordChars.length)
@@ -143,17 +143,17 @@ function getLibraryFromEncoding(encoding) {
             words.push(v);
         }
         if (chk !== ENCODING_CONST)
-            return 'Invalid checksum for ' + str;
+            return "Invalid checksum for " + str;
         return { prefix, words };
     }
     function decodeUnsafe(str, LIMIT) {
         const res = __decode(str, LIMIT);
-        if (typeof res === 'object')
+        if (typeof res === "object")
             return res;
     }
     function decode(str, LIMIT) {
         const res = __decode(str, LIMIT);
-        if (typeof res === 'object')
+        if (typeof res === "object")
             return res;
         throw new Error(res);
     }
@@ -166,5 +166,5 @@ function getLibraryFromEncoding(encoding) {
         fromWords,
     };
 }
-exports.bech32 = getLibraryFromEncoding('bech32');
-exports.bech32m = getLibraryFromEncoding('bech32m');
+exports.bech32 = getLibraryFromEncoding("bech32");
+exports.bech32m = getLibraryFromEncoding("bech32m");
