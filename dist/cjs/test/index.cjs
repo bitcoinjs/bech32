@@ -1,19 +1,19 @@
-"use strict";
+'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
 // @ts-ignore
 const bech32Lib = require("../index.cjs");
 const tape = require("tape");
-const fixtures = require("../../../src/test/fixtures");
+const fixtures = require('../../../src/test/fixtures');
 function testValidFixture(f, bech32) {
     if (f.hex) {
         tape(`fromWords/toWords ${f.hex}`, (t) => {
             t.plan(3);
-            const words = bech32.toWords(Buffer.from(f.hex, "hex"));
+            const words = bech32.toWords(Buffer.from(f.hex, 'hex'));
             const bytes = Buffer.from(bech32.fromWords(f.words));
             const bytes2 = Buffer.from(bech32.fromWordsUnsafe(f.words));
             t.same(words, f.words);
-            t.same(bytes.toString("hex"), f.hex);
-            t.same(bytes2.toString("hex"), f.hex);
+            t.same(bytes.toString('hex'), f.hex);
+            t.same(bytes2.toString('hex'), f.hex);
         });
     }
     tape(`encode ${f.prefix} ${f.hex || f.words}`, (t) => {
@@ -31,13 +31,13 @@ function testValidFixture(f, bech32) {
     });
     tape(`fails for ${f.string} with 1 bit flipped`, (t) => {
         t.plan(2);
-        const buffer = Buffer.from(f.string, "utf8");
-        buffer[f.string.lastIndexOf("1") + 1] ^= 0x1; // flip a bit, after the prefix
-        const str = buffer.toString("utf8");
+        const buffer = Buffer.from(f.string, 'utf8');
+        buffer[f.string.lastIndexOf('1') + 1] ^= 0x1; // flip a bit, after the prefix
+        const str = buffer.toString('utf8');
         t.equal(bech32.decodeUnsafe(str, f.limit), undefined);
         t.throws(() => {
             bech32.decode(str, f.limit);
-        }, new RegExp("Invalid checksum|Unknown character"));
+        }, new RegExp('Invalid checksum|Unknown character'));
     });
     // === compare of objects compares reference in memory, so this works
     const wrongBech32 = bech32 === bech32Lib.bech32 ? bech32Lib.bech32m : bech32Lib.bech32;
@@ -46,7 +46,7 @@ function testValidFixture(f, bech32) {
         t.equal(wrongBech32.decodeUnsafe(f.string, f.limit), undefined);
         t.throws(() => {
             wrongBech32.decode(f.string, f.limit);
-        }, new RegExp("Invalid checksum"));
+        }, new RegExp('Invalid checksum'));
     });
 }
 function testInvalidFixture(f, bech32) {
@@ -59,7 +59,7 @@ function testInvalidFixture(f, bech32) {
         });
     }
     if (f.string !== undefined || f.stringHex) {
-        const str = f.string || Buffer.from(f.stringHex, "hex").toString("binary");
+        const str = f.string || Buffer.from(f.stringHex, 'hex').toString('binary');
         tape(`decode fails for ${str} (${f.exception})`, (t) => {
             t.plan(2);
             t.equal(bech32.decodeUnsafe(str), undefined);
@@ -90,7 +90,7 @@ fixtures.fromWords.invalid.forEach((f) => {
         }, new RegExp(f.exception));
     });
 });
-tape("toWords/toWordsUnsafe accept bytes as ArrayLike<number>", (t) => {
+tape('toWords/toWordsUnsafe accept bytes as ArrayLike<number>', (t) => {
     // Ensures that only the two operations from
     //   interface ArrayLike<T> {
     //     readonly length: number;

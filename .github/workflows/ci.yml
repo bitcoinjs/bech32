@@ -17,15 +17,6 @@ jobs:
                     - lts/*
                 test-suite:
                     - test
-                include:
-                    - node-version: lts/*
-                      test-suite: lint
-                    - node-version: lts/*
-                      test-suite: format:ci
-                    - node-version: lts/*
-                      test-suite: gitdiff:ci
-                    - node-version: lts/*
-                      test-suite: coverage
 
         steps:
             - uses: actions/checkout@v3
