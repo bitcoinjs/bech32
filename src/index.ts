@@ -154,7 +154,7 @@ function getLibraryFromEncoding(encoding: 'bech32' | 'bech32m'): BechLib {
     let chk = prefixChk(prefix);
     if (typeof chk === 'string') return chk;
 
-    const words = [] as number[];
+    const words = [];
     for (let i = 0; i < wordChars.length; ++i) {
       const c = wordChars.charAt(i);
       const v = ALPHABET_MAP[c];
