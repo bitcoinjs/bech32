@@ -1,8 +1,9 @@
 'use strict';
 Object.defineProperty(exports, "__esModule", { value: true });
-const bech32Lib = require("../");
+// @ts-ignore
+const bech32Lib = require("../index.cjs");
 const tape = require("tape");
-const fixtures = require('../../src/test/fixtures');
+const fixtures = require('../../../src/test/fixtures');
 function testValidFixture(f, bech32) {
     if (f.hex) {
         tape(`fromWords/toWords ${f.hex}`, (t) => {
