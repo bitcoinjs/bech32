@@ -4,11 +4,7 @@
   "rules": {
     "arrow-parens": [true, "ban-single-arg-parens"],
     "curly": false,
-    "indent": [
-      true,
-      "spaces",
-      2
-    ],
+    "indent": [true, "spaces", 2],
     "interface-name": [false],
     "match-default-export-name": true,
     "max-classes-per-file": [false],

@@ -6,5 +6,5 @@
     "resolveJsonModule": true,
     "module": "ESNext"
   },
-  "exclude": ["node_modules", "src/test/**/*"]
+  "exclude": ["src/test/**/*"]
 }
